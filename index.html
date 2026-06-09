@@ -1,12 +1,954 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>関西新生活サポート</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>関西新生活サポート</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+ 
+  :root {
+    --blue: #1A6FD4;
+    --blue-light: #E8F2FC;
+    --blue-mid: #4A90D9;
+    --green: #1DB87A;
+    --green-light: #E6F7F0;
+    --green-dark: #0F8A5A;
+    --gray: #F5F7FA;
+    --gray-mid: #E2E8F0;
+    --gray-text: #64748B;
+    --text: #1A202C;
+    --white: #FFFFFF;
+    --radius: 12px;
+    --radius-sm: 8px;
+  }
+ 
+  body {
+    font-family: 'Noto Sans JP', sans-serif;
+    background: var(--gray);
+    color: var(--text);
+    min-height: 100vh;
+    font-size: 15px;
+    line-height: 1.6;
+  }
+ 
+  /* ── HEADER ── */
+  .header {
+    background: var(--white);
+    border-bottom: 1px solid var(--gray-mid);
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  .logo-mark {
+    width: 36px;
+    height: 36px;
+    background: linear-gradient(135deg, var(--blue) 0%, var(--green) 100%);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .logo-mark svg { width: 20px; height: 20px; fill: white; }
+  .logo-text { font-size: 14px; font-weight: 700; color: var(--text); line-height: 1.2; }
+  .logo-text span { display: block; font-size: 10px; font-weight: 400; color: var(--gray-text); }
+ 
+  /* ── HERO ── */
+  .hero {
+    background: var(--white);
+    padding: 40px 20px 32px;
+    text-align: center;
+    border-bottom: 1px solid var(--gray-mid);
+  }
+  .hero-badge {
+    display: inline-block;
+    background: var(--green-light);
+    color: var(--green-dark);
+    font-size: 12px;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 20px;
+    margin-bottom: 16px;
+    letter-spacing: 0.03em;
+  }
+  .hero h1 {
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.3;
+    margin-bottom: 10px;
+  }
+  .hero h1 span { color: var(--blue); }
+  .hero p {
+    font-size: 14px;
+    color: var(--gray-text);
+    margin-bottom: 28px;
+  }
+  .steps-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    max-width: 320px;
+    margin: 0 auto;
+  }
+  .step-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    flex: 1;
+  }
+  .step-num {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    background: var(--gray-mid);
+    color: var(--gray-text);
+    transition: all 0.3s;
+  }
+  .step-num.active { background: var(--blue); color: white; }
+  .step-num.done { background: var(--green); color: white; }
+  .step-label { font-size: 10px; color: var(--gray-text); white-space: nowrap; }
+  .step-line { height: 2px; flex: 1; background: var(--gray-mid); border-radius: 2px; margin-bottom: 14px; transition: background 0.3s; }
+  .step-line.done { background: var(--green); }
+ 
+  /* ── SCREENS ── */
+  .screen { display: none; }
+  .screen.active { display: block; }
+ 
+  /* ── FORM ── */
+  .form-section {
+    background: var(--white);
+    margin: 16px;
+    border-radius: var(--radius);
+    padding: 20px;
+    border: 1px solid var(--gray-mid);
+  }
+  .section-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--blue);
+    letter-spacing: 0.04em;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .section-title::before {
+    content: '';
+    display: block;
+    width: 3px;
+    height: 14px;
+    background: var(--blue);
+    border-radius: 2px;
+  }
+  .field { margin-bottom: 16px; }
+  .field:last-child { margin-bottom: 0; }
+  label {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+  label .req {
+    color: #E53E3E;
+    margin-left: 2px;
+    font-size: 12px;
+  }
+  label .opt {
+    color: var(--gray-text);
+    font-size: 11px;
+    font-weight: 400;
+    margin-left: 4px;
+  }
+  input[type="text"],
+  input[type="tel"],
+  select {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1.5px solid var(--gray-mid);
+    border-radius: var(--radius-sm);
+    font-size: 15px;
+    font-family: inherit;
+    color: var(--text);
+    background: var(--white);
+    outline: none;
+    transition: border-color 0.2s;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  input[type="text"]:focus,
+  input[type="tel"]:focus,
+  select:focus {
+    border-color: var(--blue);
+    box-shadow: 0 0 0 3px rgba(26,111,212,0.12);
+  }
+  select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2364748B' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    padding-right: 36px;
+    cursor: pointer;
+  }
+ 
+  /* チェックボックス グリッド */
+  .check-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .check-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--gray);
+    border: 1.5px solid var(--gray-mid);
+    border-radius: var(--radius-sm);
+    padding: 10px 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--text);
+    user-select: none;
+  }
+  .check-item input[type="checkbox"] { display: none; }
+  .check-box {
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--gray-mid);
+    border-radius: 4px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+  }
+  .check-item.checked {
+    background: var(--blue-light);
+    border-color: var(--blue);
+    color: var(--blue);
+    font-weight: 500;
+  }
+  .check-item.checked .check-box {
+    background: var(--blue);
+    border-color: var(--blue);
+  }
+  .check-item.checked .check-box::after {
+    content: '';
+    width: 5px;
+    height: 9px;
+    border: 2px solid white;
+    border-top: none;
+    border-left: none;
+    transform: rotate(45deg) translate(-1px, -1px);
+    display: block;
+  }
+ 
+  /* ── BUTTONS ── */
+  .btn-primary {
+    display: block;
+    width: 100%;
+    padding: 16px;
+    background: var(--blue);
+    color: white;
+    border: none;
+    border-radius: var(--radius);
+    font-size: 16px;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s;
+    letter-spacing: 0.02em;
+  }
+  .btn-primary:active { transform: scale(0.98); background: #1558A8; }
+  .btn-primary:disabled { background: var(--gray-mid); color: var(--gray-text); cursor: not-allowed; }
+ 
+  .btn-green {
+    display: flex;
+    width: 100%;
+    padding: 18px;
+    background: var(--green);
+    color: white;
+    border: none;
+    border-radius: var(--radius);
+    font-size: 17px;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: all 0.2s;
+    text-decoration: none;
+  }
+  .btn-green:active { transform: scale(0.98); background: var(--green-dark); }
+  .line-icon { width: 24px; height: 24px; flex-shrink: 0; }
+ 
+  .btn-text {
+    background: none;
+    border: none;
+    color: var(--gray-text);
+    font-size: 13px;
+    font-family: inherit;
+    cursor: pointer;
+    text-decoration: underline;
+    padding: 4px;
+  }
+ 
+  .form-actions {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+ 
+  /* ── RESULT ── */
+  .result-header {
+    background: var(--white);
+    padding: 28px 20px 24px;
+    text-align: center;
+    border-bottom: 1px solid var(--gray-mid);
+  }
+  .result-header h2 {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .result-header p { font-size: 13px; color: var(--gray-text); }
+ 
+  .area-card {
+    background: var(--white);
+    margin: 12px 16px 0;
+    border-radius: var(--radius);
+    border: 1px solid var(--gray-mid);
+    overflow: hidden;
+  }
+  .area-card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    border-bottom: 1px solid var(--gray-mid);
+  }
+  .rank-badge {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .rank-1 { background: #FFF8E1; color: #F9A825; }
+  .rank-2 { background: var(--gray); color: #607D8B; }
+  .rank-3 { background: #FBE9E7; color: #BF360C; }
+ 
+  .area-name { font-size: 18px; font-weight: 700; }
+  .area-sub { font-size: 12px; color: var(--gray-text); margin-top: 2px; }
+ 
+  .area-body { padding: 14px 16px; }
+  .area-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+  .tag {
+    font-size: 12px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-weight: 500;
+  }
+  .tag-blue { background: var(--blue-light); color: var(--blue); }
+  .tag-green { background: var(--green-light); color: var(--green-dark); }
+  .tag-gray { background: var(--gray); color: var(--gray-text); }
+ 
+  .area-desc { font-size: 13px; color: var(--gray-text); line-height: 1.7; }
+ 
+  .match-bar-wrap { margin-top: 12px; }
+  .match-label { font-size: 11px; color: var(--gray-text); margin-bottom: 4px; display: flex; justify-content: space-between; }
+  .match-bar { height: 6px; background: var(--gray-mid); border-radius: 3px; overflow: hidden; }
+  .match-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--blue), var(--green)); transition: width 1s ease; }
+ 
+  .cta-section {
+    margin: 20px 16px 8px;
+    background: var(--white);
+    border-radius: var(--radius);
+    padding: 20px;
+    border: 1px solid var(--gray-mid);
+    text-align: center;
+  }
+  .cta-section h3 { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+  .cta-section p { font-size: 13px; color: var(--gray-text); margin-bottom: 16px; }
+ 
+  .disclaimer {
+    text-align: center;
+    font-size: 11px;
+    color: var(--gray-text);
+    padding: 16px 20px 32px;
+    line-height: 1.6;
+  }
+ 
+  /* ── LOADING ── */
+  #loading-screen {
+    text-align: center;
+    padding: 60px 20px;
+  }
+  .spinner {
+    width: 48px;
+    height: 48px;
+    border: 4px solid var(--gray-mid);
+    border-top-color: var(--blue);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 20px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-text { font-size: 15px; color: var(--gray-text); }
+ 
+  /* ── TOAST ── */
+  #toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: #1A202C;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 24px;
+    font-size: 13px;
+    white-space: nowrap;
+    transition: transform 0.3s ease;
+    z-index: 100;
+    pointer-events: none;
+  }
+  #toast.show { transform: translateX(-50%) translateY(0); }
+ 
+  .bottom-spacer { height: 32px; }
+ 
+  /* エラー */
+  .field-error { font-size: 12px; color: #E53E3E; margin-top: 4px; display: none; }
+  .field-error.show { display: block; }
+  input.error, select.error { border-color: #E53E3E; }
+</style>
 </head>
 <body>
-    <h1>関西新生活サポート</h1>
-    <p>住まいから始まる、新生活サポート。</p>
+ 
+<!-- HEADER -->
+<header class="header">
+  <div class="logo-mark">
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path d="M12 2L2 8v14h8v-6h4v6h8V8L12 2z"/>
+    </svg>
+  </div>
+  <div class="logo-text">
+    関西新生活サポート
+    <span>住まいから始まる、新生活サポート。</span>
+  </div>
+</header>
+ 
+<!-- HERO / PROGRESS -->
+<div class="hero">
+  <div class="hero-badge">✦ 無料エリア診断</div>
+  <h1>あなたにぴったりの<br><span>関西エリア</span>を見つけよう</h1>
+  <p>3分で完了 ・ 入力後すぐに診断結果を表示します</p>
+  <div class="steps-bar">
+    <div class="step-item">
+      <div class="step-num active" id="step1-num">1</div>
+      <div class="step-label">基本情報</div>
+    </div>
+    <div class="step-line" id="line1"></div>
+    <div class="step-item">
+      <div class="step-num" id="step2-num">2</div>
+      <div class="step-label">希望条件</div>
+    </div>
+    <div class="step-line" id="line2"></div>
+    <div class="step-item">
+      <div class="step-num" id="step3-num">3</div>
+      <div class="step-label">診断結果</div>
+    </div>
+  </div>
+</div>
+ 
+<!-- SCREEN 1: 基本情報 -->
+<div class="screen active" id="screen1">
+  <div class="form-section">
+    <div class="section-title">あなたのことを教えてください</div>
+ 
+    <div class="field">
+      <label>お名前 <span class="req">*</span></label>
+      <input type="text" id="name" placeholder="例：山田 太郎" autocomplete="name">
+      <div class="field-error" id="name-err">お名前を入力してください</div>
+    </div>
+ 
+    <div class="field">
+      <label>電話番号 <span class="req">*</span></label>
+      <input type="tel" id="phone" placeholder="例：090-1234-5678" autocomplete="tel">
+      <div class="field-error" id="phone-err">電話番号を入力してください</div>
+    </div>
+ 
+    <div class="field">
+      <label>LINE表示名 <span class="opt">任意</span></label>
+      <input type="text" id="line-name" placeholder="例：たろう">
+    </div>
+ 
+    <div class="field">
+      <label>勤務地・通学先 <span class="req">*</span></label>
+      <input type="text" id="workplace" placeholder="例：大阪・梅田、京都市内 など">
+      <div class="field-error" id="workplace-err">勤務地・通学先を入力してください</div>
+    </div>
+  </div>
+ 
+  <div class="form-actions">
+    <button class="btn-primary" onclick="goToStep2()">次へ → 希望条件を入力</button>
+  </div>
+  <div class="bottom-spacer"></div>
+</div>
+ 
+<!-- SCREEN 2: 希望条件 -->
+<div class="screen" id="screen2">
+  <div class="form-section">
+    <div class="section-title">住まいの希望条件</div>
+ 
+    <div class="field">
+      <label>入居希望時期 <span class="req">*</span></label>
+      <select id="move-in">
+        <option value="">選択してください</option>
+        <option value="1ヶ月以内">1ヶ月以内</option>
+        <option value="2〜3ヶ月以内">2〜3ヶ月以内</option>
+        <option value="半年以内">半年以内</option>
+        <option value="半年以上先">半年以上先</option>
+        <option value="未定">まだ決まっていない</option>
+      </select>
+      <div class="field-error" id="movein-err">入居希望時期を選択してください</div>
+    </div>
+ 
+    <div class="field">
+      <label>月々の家賃予算 <span class="req">*</span></label>
+      <select id="budget">
+        <option value="">選択してください</option>
+        <option value="〜4万円">〜4万円</option>
+        <option value="4〜5万円">4〜5万円</option>
+        <option value="5〜6万円">5〜6万円</option>
+        <option value="6〜7万円">6〜7万円</option>
+        <option value="7〜9万円">7〜9万円</option>
+        <option value="9万円以上">9万円以上</option>
+      </select>
+      <div class="field-error" id="budget-err">家賃予算を選択してください</div>
+    </div>
+ 
+    <div class="field">
+      <label>希望通勤時間 <span class="req">*</span></label>
+      <select id="commute">
+        <option value="">選択してください</option>
+        <option value="〜15分">〜15分（徒歩・自転車圏内）</option>
+        <option value="〜30分">〜30分</option>
+        <option value="〜45分">〜45分</option>
+        <option value="〜1時間">〜1時間</option>
+        <option value="1時間以上可">1時間以上でも可</option>
+      </select>
+      <div class="field-error" id="commute-err">通勤時間を選択してください</div>
+    </div>
+  </div>
+ 
+  <div class="form-section">
+    <div class="section-title">重視したい条件（複数選択OK）</div>
+    <div class="check-grid" id="conditions-grid">
+      <label class="check-item" onclick="toggleCheck(this)">
+        <input type="checkbox" value="家賃の安さ">
+        <div class="check-box"></div>
+        家賃の安さ
+      </label>
+      <label class="check-item" onclick="toggleCheck(this)">
+        <input type="checkbox" value="駅近">
+        <div class="check-box"></div>
+        駅近・交通アクセス
+      </label>
+      <label class="check-item" onclick="toggleCheck(this)">
+        <input type="checkbox" value="治安の良さ">
+        <div class="check-box"></div>
+        治安・安全性
+      </label>
+      <label class="check-item" onclick="toggleCheck(this)">
+        <input type="checkbox" value="おしゃれな街並み">
+        <div class="check-box"></div>
+        おしゃれな雰囲気
+      </label>
+      <label class="check-item" onclick="toggleCheck(this)">
+        <input type="checkbox" value="スーパー・コンビニ近く">
+        <div class="check-box"></div>
+        生活利便性
+      </label>
+      <label class="check-item" onclick="toggleCheck(this)">
+        <input type="checkbox" value="自然・公園近く">
+        <div class="check-box"></div>
+        自然・落ち着いた環境
+      </label>
+      <label class="check-item" onclick="toggleCheck(this)">
+        <input type="checkbox" value="学生・若者が多い">
+        <div class="check-box"></div>
+        学生・若者が多い
+      </label>
+      <label class="check-item" onclick="toggleCheck(this)">
+        <input type="checkbox" value="築浅・新築">
+        <div class="check-box"></div>
+        築浅・きれいな部屋
+      </label>
+    </div>
+  </div>
+ 
+  <div class="form-actions">
+    <button class="btn-primary" onclick="submitForm()">診断結果を見る ✦</button>
+    <button class="btn-text" onclick="goToStep1()">← 基本情報に戻る</button>
+  </div>
+  <div class="bottom-spacer"></div>
+</div>
+ 
+<!-- LOADING -->
+<div class="screen" id="loading-screen">
+  <div style="text-align:center; padding: 80px 20px;">
+    <div class="spinner"></div>
+    <div class="loading-text">あなたにぴったりのエリアを<br>診断しています…</div>
+  </div>
+</div>
+ 
+<!-- SCREEN 3: 結果 -->
+<div class="screen" id="screen3">
+  <div class="result-header">
+    <div class="hero-badge" style="background: var(--blue-light); color: var(--blue);">✦ 診断完了</div>
+    <h2 id="result-name-label">さんへのおすすめ</h2>
+    <p id="result-summary-text">入力内容をもとに、ぴったりのエリアを選びました</p>
+  </div>
+ 
+  <div id="area-cards-container"></div>
+ 
+  <div class="cta-section">
+    <h3>気になるエリアを詳しく知りたい方へ</h3>
+    <p>担当スタッフが物件探しのご相談を<br>無料でサポートします。</p>
+    <!-- ▼▼▼ LINEリンクをここで差し替えてください ▼▼▼ -->
+    <a href="https://lin.ee/XXXXXXXX" class="btn-green" id="line-cta-btn" target="_blank" rel="noopener">
+      <svg class="line-icon" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="40" height="40" rx="10" fill="white"/>
+        <path d="M20 7C12.82 7 7 12.06 7 18.31c0 5.61 4.98 10.32 11.7 11.19.46.1 1.08.3 1.24.7.14.35.09.91.04 1.26 0 0-.16 1-.2 1.21-.06.35-.28 1.38 1.21.75 1.49-.63 8.05-4.74 10.98-8.12C33.88 22.62 33 20.56 33 18.31 33 12.06 27.18 7 20 7z" fill="#06C755"/>
+        <path d="M28.03 22.07h-4.2a.3.3 0 01-.3-.3v-6.5c0-.17.13-.3.3-.3h4.2c.16 0 .3.13.3.3v1.06c0 .17-.14.3-.3.3h-2.83v1.12h2.83c.16 0 .3.13.3.3v1.06c0 .17-.14.3-.3.3h-2.83v1.12h2.83c.16 0 .3.13.3.3v1.06c0 .17-.14.3-.3.3zm-5.88 0h-1.06a.3.3 0 01-.3-.3v-6.5c0-.17.13-.3.3-.3h1.06c.17 0 .3.13.3.3v6.5c0 .16-.13.3-.3.3zm-2.12 0h-4.2a.3.3 0 01-.3-.3v-6.5c0-.17.13-.3.3-.3h1.06c.17 0 .3.13.3.3v5.14h2.84c.16 0 .3.13.3.3v1.06c0 .17-.14.3-.3.3zm-5.88-6.8h-1.06a.3.3 0 00-.3.3v6.5c0 .16.13.3.3.3h1.06c.17 0 .3-.14.3-.3v-6.5c0-.17-.13-.3-.3-.3z" fill="white"/>
+      </svg>
+      担当者に無料相談する
+    </a>
+  </div>
+ 
+  <div class="disclaimer">
+    ※ 診断結果はご入力の情報をもとにした参考情報です。<br>
+    実際の物件状況は担当スタッフにご確認ください。
+  </div>
+  <div class="bottom-spacer"></div>
+</div>
+ 
+<!-- TOAST -->
+<div id="toast"></div>
+ 
+<script>
+// ── STATE ──
+var formData = {};
+ 
+// ── STEP NAV ──
+function goToStep2() {
+  if (!validateStep1()) return;
+  formData.name = document.getElementById('name').value.trim();
+  formData.phone = document.getElementById('phone').value.trim();
+  formData.lineName = document.getElementById('line-name').value.trim();
+  formData.workplace = document.getElementById('workplace').value.trim();
+ 
+  setScreen('screen2');
+  setStep(2);
+}
+ 
+function goToStep1() {
+  setScreen('screen1');
+  setStep(1);
+}
+ 
+function setScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+ 
+function setStep(n) {
+  for (var i = 1; i <= 3; i++) {
+    var el = document.getElementById('step' + i + '-num');
+    el.classList.remove('active', 'done');
+    if (i < n) el.classList.add('done');
+    else if (i === n) el.classList.add('active');
+  }
+  var l1 = document.getElementById('line1');
+  var l2 = document.getElementById('line2');
+  if (n >= 2) l1.classList.add('done'); else l1.classList.remove('done');
+  if (n >= 3) l2.classList.add('done'); else l2.classList.remove('done');
+}
+ 
+// ── CHECKBOX ──
+function toggleCheck(el) {
+  el.classList.toggle('checked');
+  el.querySelector('input[type="checkbox"]').checked = el.classList.contains('checked');
+}
+ 
+// ── VALIDATION ──
+function validateStep1() {
+  var ok = true;
+  var nameVal = document.getElementById('name').value.trim();
+  var phoneVal = document.getElementById('phone').value.trim();
+  var workVal = document.getElementById('workplace').value.trim();
+ 
+  setError('name', !nameVal);
+  setError('phone', !phoneVal);
+  setError('workplace', !workVal);
+ 
+  if (!nameVal) { ok = false; }
+  if (!phoneVal) { ok = false; }
+  if (!workVal) { ok = false; }
+  return ok;
+}
+ 
+function validateStep2() {
+  var ok = true;
+  setError('movein', !document.getElementById('move-in').value);
+  setError('budget', !document.getElementById('budget').value);
+  setError('commute', !document.getElementById('commute').value);
+  if (!document.getElementById('move-in').value) ok = false;
+  if (!document.getElementById('budget').value) ok = false;
+  if (!document.getElementById('commute').value) ok = false;
+  return ok;
+}
+ 
+function setError(id, show) {
+  var errEl = document.getElementById(id + '-err');
+  var inputEl = document.getElementById(id === 'movein' ? 'move-in' : id);
+  if (errEl) errEl.classList.toggle('show', show);
+  if (inputEl) inputEl.classList.toggle('error', show);
+}
+ 
+// ── SUBMIT ──
+function submitForm() {
+  if (!validateStep2()) return;
+ 
+  formData.moveIn = document.getElementById('move-in').value;
+  formData.budget = document.getElementById('budget').value;
+  formData.commute = document.getElementById('commute').value;
+  formData.conditions = Array.from(document.querySelectorAll('#conditions-grid input:checked')).map(i => i.value);
+ 
+  setScreen('loading-screen');
+  setStep(3);
+ 
+  setTimeout(function() {
+    var areas = diagnose(formData);
+    renderResult(areas);
+    setScreen('screen3');
+    sendToSpreadsheet(formData);
+  }, 1800);
+}
+ 
+// ── DIAGNOSIS LOGIC ──
+var AREA_DATA = [
+  {
+    name: '天王寺・阿倍野', city: '大阪市',
+    tags: ['ターミナル駅直結', '買い物便利', 'ハルカス近く'],
+    desc: '大阪市内南部の主要ターミナル。御堂筋線・谷町線・近鉄が集まり、梅田・難波・奈良方面どこへも好アクセス。スーパー・百貨店・病院が揃い、生活利便性は抜群です。',
+    score: { cheap: 2, access: 5, safe: 4, stylish: 3, convenient: 5, nature: 2, young: 3, new: 3 }
+  },
+  {
+    name: '江坂・吹田', city: '吹田市',
+    tags: ['御堂筋線沿い', '大阪大学近く', '静かな住宅街'],
+    desc: '御堂筋線で梅田まで約15分。北大阪の閑静な住宅街で、落ち着いた暮らしを求める学生・若手社会人に人気のエリアです。',
+    score: { cheap: 3, access: 4, safe: 5, stylish: 3, convenient: 4, nature: 3, young: 4, new: 3 }
+  },
+  {
+    name: '北堀江・西長堀', city: '大阪市西区',
+    tags: ['おしゃれ', 'カフェ・雑貨', '心斎橋すぐ'],
+    desc: '心斎橋から徒歩圏内のオシャレな西区エリア。個性的なカフェや雑貨屋が並ぶ洗練された街並みと、長堀鶴見緑地線の利便性が人気の理由です。',
+    score: { cheap: 2, access: 4, safe: 3, stylish: 5, convenient: 4, nature: 2, young: 5, new: 4 }
+  },
+  {
+    name: '京都・西院・四条大宮', city: '京都市',
+    tags: ['阪急・嵐電', '学生街', '家賃リーズナブル'],
+    desc: '阪急京都線・嵐電が通り、京都市内中心部へすぐ。学生が多く活気ある街で、家賃も比較的リーズナブル。京都での一人暮らしにおすすめです。',
+    score: { cheap: 4, access: 4, safe: 4, stylish: 4, convenient: 4, nature: 2, young: 5, new: 3 }
+  },
+  {
+    name: '京都・伏見・桃山', city: '京都市',
+    tags: ['近鉄・JR沿い', '伏見稲荷近く', '下町情緒'],
+    desc: '近鉄・JR・京阪が通り、大阪方面にも通いやすい。伏見稲荷・宇治など観光地も身近で、下町の温かみある暮らしができます。家賃も市内比較で安め。',
+    score: { cheap: 4, access: 3, safe: 4, stylish: 3, convenient: 3, nature: 4, young: 3, new: 3 }
+  },
+  {
+    name: '神戸・三宮・元町', city: '神戸市',
+    tags: ['おしゃれ', 'ハーバー近く', '国際的な雰囲気'],
+    desc: '神戸の中心地で、JR・阪急・阪神・地下鉄が集結。ハーバーランドや北野異人館など観光スポットも多く、おしゃれで国際的な雰囲気が魅力。',
+    score: { cheap: 2, access: 5, safe: 4, stylish: 5, convenient: 5, nature: 3, young: 4, new: 4 }
+  },
+  {
+    name: '西宮・甲子園', city: '西宮市',
+    tags: ['阪神・阪急沿い', '静かな住宅街', '自然豊か'],
+    desc: '阪神・阪急の主要路線沿いで大阪・神戸どちらにもアクセス良好。閑静な住宅地でファミリーにも人気の安心エリア。自然も多く住みやすい環境です。',
+    score: { cheap: 3, access: 4, safe: 5, stylish: 3, convenient: 4, nature: 4, young: 2, new: 3 }
+  },
+  {
+    name: '大阪・長居・我孫子', city: '大阪市住吉区',
+    tags: ['御堂筋線沿い', '公園近く', '下町感あり'],
+    desc: '御堂筋線で天王寺・梅田へ通いやすい落ち着いたエリア。長居公園があり自然も身近。家賃相場が低く、コスパを重視する方に人気です。',
+    score: { cheap: 5, access: 4, safe: 4, stylish: 2, convenient: 4, nature: 4, young: 3, new: 2 }
+  },
+  {
+    name: '茨木・摂津', city: '茨木市',
+    tags: ['JR・阪急沿い', '大阪大学近く', '住宅街'],
+    desc: 'JR・阪急の2路線が通り、大阪・京都双方へのアクセスが良好。大阪大学の学生も多く住む若者に親しみやすいエリア。家賃も比較的手頃です。',
+    score: { cheap: 4, access: 4, safe: 4, stylish: 2, convenient: 3, nature: 3, young: 4, new: 3 }
+  },
+  {
+    name: '奈良・学研都市', city: '奈良市・精華町',
+    tags: ['近鉄沿い', '自然豊か', '家賃安い'],
+    desc: '近鉄で京都・大阪方面へアクセス。自然が豊かで家賃が安く、通勤時間をある程度許容できる方に魅力的な選択肢。落ち着いた環境で生活できます。',
+    score: { cheap: 5, access: 3, safe: 5, stylish: 2, convenient: 3, nature: 5, young: 2, new: 3 }
+  }
+];
+ 
+var CONDITION_KEY_MAP = {
+  '家賃の安さ': 'cheap',
+  '駅近': 'access',
+  '治安の良さ': 'safe',
+  'おしゃれな街並み': 'stylish',
+  'スーパー・コンビニ近く': 'convenient',
+  '自然・公園近く': 'nature',
+  '学生・若者が多い': 'young',
+  '築浅・新築': 'new'
+};
+ 
+var BUDGET_SCORE = { '〜4万円': 'cheap_only', '4〜5万円': 'cheap', '5〜6万円': 'mid', '6〜7万円': 'mid', '7〜9万円': 'any', '9万円以上': 'any' };
+var BUDGET_EXCLUDE = { '〜4万円': ['神戸・三宮・元町','北堀江・西長堀'], '4〜5万円': [] };
+ 
+function diagnose(data) {
+  var scores = AREA_DATA.map(function(a) {
+    var s = 0;
+    if (data.conditions && data.conditions.length > 0) {
+      data.conditions.forEach(function(c) {
+        var key = CONDITION_KEY_MAP[c];
+        if (key && a.score[key]) s += a.score[key];
+      });
+    } else {
+      s = a.score.access + a.score.safe + a.score.convenient;
+    }
+    var exclude = BUDGET_EXCLUDE[data.budget] || [];
+    if (exclude.indexOf(a.name) >= 0) s -= 4;
+    return { area: a, raw: s };
+  });
+  scores.sort(function(a, b) { return b.raw - a.raw; });
+  var max = scores[0].raw || 1;
+  scores.forEach(function(x) { x.pct = Math.round((x.raw / max) * 100); });
+  return scores.slice(0, 3);
+}
+ 
+// ── RENDER RESULT ──
+function renderResult(areas) {
+  var name = formData.name ? formData.name.split(' ')[0] + 'さん' : '';
+  document.getElementById('result-name-label').textContent = name + 'へのおすすめエリア';
+  document.getElementById('result-summary-text').textContent =
+    '勤務地：' + formData.workplace + '　予算：' + formData.budget + '　通勤：' + formData.commute;
+ 
+  var container = document.getElementById('area-cards-container');
+  container.innerHTML = '';
+ 
+  var ranks = ['1','2','3'];
+  var medals = ['🥇','🥈','🥉'];
+ 
+  areas.forEach(function(item, i) {
+    var a = item.area;
+    var card = document.createElement('div');
+    card.className = 'area-card';
+    card.innerHTML =
+      '<div class="area-card-header">' +
+        '<div class="rank-badge rank-' + (i+1) + '">' + medals[i] + '</div>' +
+        '<div>' +
+          '<div class="area-name">' + a.name + '</div>' +
+          '<div class="area-sub">' + a.city + '</div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="area-body">' +
+        '<div class="area-tags">' +
+          a.tags.map(function(t, j) {
+            var cls = j === 0 ? 'tag tag-blue' : j === 1 ? 'tag tag-green' : 'tag tag-gray';
+            return '<span class="' + cls + '">' + t + '</span>';
+          }).join('') +
+        '</div>' +
+        '<div class="area-desc">' + a.desc + '</div>' +
+        '<div class="match-bar-wrap">' +
+          '<div class="match-label"><span>マッチ度</span><span>' + item.pct + '%</span></div>' +
+          '<div class="match-bar"><div class="match-fill" id="bar' + i + '" style="width:0%"></div></div>' +
+        '</div>' +
+      '</div>';
+    container.appendChild(card);
+  });
+ 
+  setTimeout(function() {
+    areas.forEach(function(item, i) {
+      var bar = document.getElementById('bar' + i);
+      if (bar) bar.style.width = item.pct + '%';
+    });
+  }, 100);
+}
+ 
+// ── SPREADSHEET SEND ──
+// ▼▼▼ Google Apps Script のデプロイURLをここに設定してください ▼▼▼
+var GAS_URL = 'https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec';
+ 
+function sendToSpreadsheet(data) {
+  var payload = {
+    timestamp: new Date().toLocaleString('ja-JP'),
+    name: data.name,
+    phone: data.phone,
+    lineName: data.lineName || '',
+    workplace: data.workplace,
+    moveIn: data.moveIn,
+    budget: data.budget,
+    commute: data.commute,
+    conditions: (data.conditions || []).join('、')
+  };
+ 
+  if (GAS_URL.indexOf('YOUR_DEPLOYMENT_ID') >= 0) {
+    console.log('[保存スキップ] GAS_URLが未設定です。データ:', payload);
+    return;
+  }
+ 
+  fetch(GAS_URL, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  }).then(function() {
+    console.log('スプレッドシートへの送信完了');
+  }).catch(function(e) {
+    console.error('送信エラー:', e);
+  });
+}
+ 
+// ── TOAST ──
+function showToast(msg) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(function() { t.classList.remove('show'); }, 2500);
+}
+</script>
 </body>
 </html>
