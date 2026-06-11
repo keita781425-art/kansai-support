@@ -1,112 +1,172 @@
-
 /**
- * lib/formConfig.js
+ * lib/diagnose.js
  *
- * Next.js移行時: lib/formConfig.ts として使用
- * フォームの全フィールド定義を一元管理します。
- * フィールド追加・削除・選択肢変更はここだけ編集すればOKです。
+ * Next.js移行時: lib/diagnose.ts として使用
+ * UIへの依存がゼロのピュアな関数です。そのままサーバーサイド(Route Handler)でも使えます。
+ *
+ * 型定義例:
+ *   type FormValues = { workplace:string; budget:string; commute:string; conditions:string[] }
+ *   type DiagnoseResult = { area: Area; score: number; matchPct: number; lineMatched: boolean }
+ *   export function diagnose(values: FormValues, areas: Area[], conditionOptions, topN?): DiagnoseResult[]
  */
  
-var FormConfig = (function () {
+var DiagnoseLogic = (function () {
  
-  /** Step 1: 基本情報フィールド */
-  var STEP1_FIELDS = [
-    {
-      id: 'name',
-      label: 'お名前',
-      type: 'text',
-      required: true,
-      placeholder: '例：山田 太郎',
-      autocomplete: 'name',
-      errorMessage: 'お名前を入力してください',
-    },
-    {
-      id: 'phone',
-      label: '電話番号',
-      type: 'tel',
-      required: true,
-      placeholder: '例：090-1234-5678',
-      autocomplete: 'tel',
-      errorMessage: '電話番号を入力してください',
-    },
-    {
-      id: 'lineName',
-      label: 'LINE表示名',
-      type: 'text',
-      required: false,
-      placeholder: '例：たろう',
-      autocomplete: 'off',
-    },
-    {
-      id: 'workplace',
-      label: '勤務地・通学先の最寄り駅',
-      type: 'text',
-      required: true,
-      placeholder: '例：梅田駅、京都駅、三宮駅 など',
-      autocomplete: 'off',
-      errorMessage: '勤務地・通学先の最寄り駅を入力してください',
-    },
-  ];
+  /**
+   * 予算文字列を数値(万円)に変換するヘルパー
+   * @param {string} budget
+   * @returns {number}
+   */
+  function budgetToNumber(budget) {
+    var map = {
+      '〜4万円': 4,
+      '4〜5万円': 4.5,
+      '5〜6万円': 5.5,
+      '6〜7万円': 6.5,
+      '7〜9万円': 8,
+      '9万円以上': 12,
+    };
+    return map[budget] || 6;
+  }
  
-  /** Step 2: 希望条件セレクト */
-  var STEP2_SELECTS = [
-    {
-      id: 'moveIn',
-      label: '入居希望時期',
-      required: true,
-      errorMessage: '入居希望時期を選択してください',
-      options: [
-        { value: '1ヶ月以内',   label: '1ヶ月以内' },
-        { value: '2〜3ヶ月以内', label: '2〜3ヶ月以内' },
-        { value: '半年以内',    label: '半年以内' },
-        { value: '半年以上先',  label: '半年以上先' },
-        { value: '未定',        label: 'まだ決まっていない' },
-      ],
-    },
-    {
-      id: 'budget',
-      label: '月々の家賃予算',
-      required: true,
-      errorMessage: '家賃予算を選択してください',
-      options: [
-        { value: '〜4万円',  label: '〜4万円' },
-        { value: '4〜5万円', label: '4〜5万円' },
-        { value: '5〜6万円', label: '5〜6万円' },
-        { value: '6〜7万円', label: '6〜7万円' },
-        { value: '7〜9万円', label: '7〜9万円' },
-        { value: '9万円以上', label: '9万円以上' },
-      ],
-    },
-    {
-      id: 'commute',
-      label: '希望通勤時間',
-      required: true,
-      errorMessage: '通勤時間を選択してください',
-      options: [
-        { value: '〜15分',    label: '〜15分（徒歩・自転車圏内）' },
-        { value: '〜30分',    label: '〜30分' },
-        { value: '〜45分',    label: '〜45分' },
-        { value: '〜1時間',   label: '〜1時間' },
-        { value: '1時間以上可', label: '1時間以上でも可' },
-      ],
-    },
-  ];
+  /**
+   * 除外予算閾値を数値(万円)に変換するヘルパー
+   * @param {string|null} threshold
+   * @returns {number}
+   */
+  function thresholdToNumber(threshold) {
+    if (!threshold) return 0;
+    var num = parseFloat(threshold);
+    return isNaN(num) ? 0 : num;
+  }
  
-  /** Step 2: 重視条件チェックボックス */
-  var CONDITION_OPTIONS = [
-    { value: '家賃の安さ',         label: '家賃の安さ',       scoreKey: 'cheap' },
-    { value: '駅近',               label: '駅近・交通アクセス', scoreKey: 'access' },
-    { value: '治安の良さ',         label: '治安・安全性',      scoreKey: 'safe' },
-    { value: 'おしゃれな街並み',   label: 'おしゃれな雰囲気',  scoreKey: 'stylish' },
-    { value: 'スーパー・コンビニ近く', label: '生活利便性',    scoreKey: 'convenient' },
-    { value: '自然・公園近く',     label: '自然・落ち着いた環境', scoreKey: 'nature' },
-    { value: '学生・若者が多い',   label: '学生・若者が多い',  scoreKey: 'young' },
-    { value: '築浅・新築',         label: '築浅・きれいな部屋', scoreKey: 'new' },
-  ];
+  /**
+   * 通勤時間の希望に応じた重み（路線マッチが見つかった場合の加点幅をスケール）
+   * 短い通勤時間を希望するほど、路線が直結しているかどうかの重要度を上げる
+   * @param {string} commute
+   * @returns {number}
+   */
+  function commuteWeight(commute) {
+    var map = {
+      '〜15分': 8,
+      '〜30分': 6,
+      '〜45分': 4,
+      '〜1時間': 2,
+      '1時間以上可': 0,
+    };
+    return map[commute] != null ? map[commute] : 4;
+  }
  
-  return {
-    STEP1_FIELDS: STEP1_FIELDS,
-    STEP2_SELECTS: STEP2_SELECTS,
-    CONDITION_OPTIONS: CONDITION_OPTIONS,
-  };
+  /**
+   * 通勤時間の希望に応じたペナルティ係数（路線が一切マッチしない場合の倍率）
+   * 短時間通勤を希望しているのに直通路線がない場合、大きく減点する
+   * @param {string} commute
+   * @returns {number} 0〜1の倍率
+   */
+  function noMatchPenaltyMultiplier(commute) {
+    var map = {
+      '〜15分': 0.5,
+      '〜30分': 0.65,
+      '〜45分': 0.8,
+      '〜1時間': 0.9,
+      '1時間以上可': 1.0,
+    };
+    return map[commute] != null ? map[commute] : 0.85;
+  }
+ 
+  /**
+   * メイン診断関数
+   * @param {{ workplace:string, budget:string, commute:string, conditions:string[] }} values
+   * @param {Area[]} areas
+   * @param {ConditionOption[]} conditionOptions - scoreKeyのマッピングに使用
+   * @param {number} [topN=3]
+   * @returns {{ area:Area, score:number, matchPct:number, lineMatched:boolean }[]}
+   */
+  function diagnose(values, areas, conditionOptions, topN) {
+    topN = topN || 3;
+    var userBudget = budgetToNumber(values.budget);
+    var selectedConditions = values.conditions || [];
+ 
+    // conditionOptions から { value -> scoreKey } のマップを作成
+    var conditionKeyMap = {};
+    conditionOptions.forEach(function (opt) {
+      conditionKeyMap[opt.value] = opt.scoreKey;
+    });
+ 
+    // 入力された勤務地・通学先の最寄り駅から、該当する路線を特定
+    var userLines = (typeof LineData !== 'undefined')
+      ? LineData.detectLines(values.workplace)
+      : [];
+ 
+    var weight = commuteWeight(values.commute);
+    var noMatchMultiplier = noMatchPenaltyMultiplier(values.commute);
+ 
+    var scored = areas.map(function (area) {
+      // ─ 重視条件のスコア合計 ─
+      var conditionScore = 0;
+      if (selectedConditions.length > 0) {
+        selectedConditions.forEach(function (cond) {
+          var key = conditionKeyMap[cond];
+          if (key && area.score[key] != null) {
+            conditionScore += area.score[key];
+          }
+        });
+      } else {
+        // 条件未選択時: アクセス・治安・利便性の合計をデフォルトスコアとする
+        conditionScore = area.score.access + area.score.safe + area.score.convenient;
+      }
+ 
+      // ─ 予算オーバーのエリアはスコア大幅減 ─
+      var budgetThreshold = thresholdToNumber(area.excludeIfBudgetBelow);
+      var budgetPenalty = (budgetThreshold > 0 && userBudget < budgetThreshold) ? -6 : 0;
+ 
+      // ─ 路線マッチによる通勤スコア ─
+      var lineMatched = false;
+      var commuteBonus = 0;
+      if (userLines.length > 0) {
+        var areaLines = area.lines || [];
+        var hasCommonLine = areaLines.some(function (line) {
+          return userLines.indexOf(line) !== -1;
+        });
+        if (hasCommonLine) {
+          lineMatched = true;
+          commuteBonus = weight; // 直通路線あり → 希望通勤時間の重みぶん加点
+        }
+      }
+ 
+      var subtotal = conditionScore + budgetPenalty + commuteBonus;
+ 
+      // ─ 路線情報はあるのにこのエリアとマッチしない場合のペナルティ ─
+      // (希望通勤時間が短いほど厳しく減点)
+      var rawScore = subtotal;
+      if (userLines.length > 0 && !lineMatched) {
+        rawScore = subtotal * noMatchMultiplier;
+      }
+ 
+      return {
+        area: area,
+        rawScore: rawScore,
+        lineMatched: lineMatched,
+      };
+    });
+ 
+    // 降順ソート
+    scored.sort(function (a, b) { return b.rawScore - a.rawScore; });
+ 
+    // 上位N件を取得してmatchPctを計算
+    var topItems = scored.slice(0, topN);
+    var maxScore = topItems[0] ? topItems[0].rawScore : 1;
+    if (maxScore <= 0) maxScore = 1;
+ 
+    return topItems.map(function (item) {
+      return {
+        area: item.area,
+        score: item.rawScore,
+        matchPct: Math.max(0, Math.round((item.rawScore / maxScore) * 100)),
+        lineMatched: item.lineMatched,
+      };
+    });
+  }
+ 
+  return { diagnose: diagnose };
 })();
