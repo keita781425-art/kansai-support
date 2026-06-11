@@ -1,117 +1,111 @@
 /**
- * lib/diagnose.js
+ * lib/formConfig.js
  *
- * Next.js移行時: lib/diagnose.ts として使用
- * UIへの依存がゼロのピュアな関数です。そのままサーバーサイド(Route Handler)でも使えます。
- *
- * 型定義例:
- *   type FormValues = { budget:string; commute:string; conditions:string[] }
- *   type DiagnoseResult = { area: Area; score: number; matchPct: number }
- *   export function diagnose(values: FormValues, areas: Area[]): DiagnoseResult[]
+ * Next.js移行時: lib/formConfig.ts として使用
+ * フォームの全フィールド定義を一元管理します。
+ * フィールド追加・削除・選択肢変更はここだけ編集すればOKです。
  */
 
-var DiagnoseLogic = (function () {
+var FormConfig = (function () {
 
-  /**
-   * 予算文字列を数値(万円)に変換するヘルパー
-   * @param {string} budget
-   * @returns {number}
-   */
-  function budgetToNumber(budget) {
-    var map = {
-      '〜4万円': 4,
-      '4〜5万円': 4.5,
-      '5〜6万円': 5.5,
-      '6〜7万円': 6.5,
-      '7〜9万円': 8,
-      '9万円以上': 12,
-    };
-    return map[budget] || 6;
-  }
+  /** Step 1: 基本情報フィールド */
+  var STEP1_FIELDS = [
+    {
+      id: 'name',
+      label: 'お名前',
+      type: 'text',
+      required: true,
+      placeholder: '例：山田 太郎',
+      autocomplete: 'name',
+      errorMessage: 'お名前を入力してください',
+    },
+    {
+      id: 'phone',
+      label: '電話番号',
+      type: 'tel',
+      required: true,
+      placeholder: '例：090-1234-5678',
+      autocomplete: 'tel',
+      errorMessage: '電話番号を入力してください',
+    },
+    {
+      id: 'lineName',
+      label: 'LINE表示名',
+      type: 'text',
+      required: false,
+      placeholder: '例：たろう',
+      autocomplete: 'off',
+    },
+    {
+      id: 'workplace',
+      label: '勤務地・通学先',
+      type: 'text',
+      required: true,
+      placeholder: '例：大阪・梅田、京都市内 など',
+      autocomplete: 'off',
+      errorMessage: '勤務地・通学先を入力してください',
+    },
+  ];
 
-  /**
-   * 除外予算閾値を数値(万円)に変換するヘルパー
-   * @param {string|null} threshold
-   * @returns {number}
-   */
-  function thresholdToNumber(threshold) {
-    if (!threshold) return 0;
-    var num = parseFloat(threshold);
-    return isNaN(num) ? 0 : num;
-  }
+  /** Step 2: 希望条件セレクト */
+  var STEP2_SELECTS = [
+    {
+      id: 'moveIn',
+      label: '入居希望時期',
+      required: true,
+      errorMessage: '入居希望時期を選択してください',
+      options: [
+        { value: '1ヶ月以内',   label: '1ヶ月以内' },
+        { value: '2〜3ヶ月以内', label: '2〜3ヶ月以内' },
+        { value: '半年以内',    label: '半年以内' },
+        { value: '半年以上先',  label: '半年以上先' },
+        { value: '未定',        label: 'まだ決まっていない' },
+      ],
+    },
+    {
+      id: 'budget',
+      label: '月々の家賃予算',
+      required: true,
+      errorMessage: '家賃予算を選択してください',
+      options: [
+        { value: '〜4万円',  label: '〜4万円' },
+        { value: '4〜5万円', label: '4〜5万円' },
+        { value: '5〜6万円', label: '5〜6万円' },
+        { value: '6〜7万円', label: '6〜7万円' },
+        { value: '7〜9万円', label: '7〜9万円' },
+        { value: '9万円以上', label: '9万円以上' },
+      ],
+    },
+    {
+      id: 'commute',
+      label: '希望通勤時間',
+      required: true,
+      errorMessage: '通勤時間を選択してください',
+      options: [
+        { value: '〜15分',    label: '〜15分（徒歩・自転車圏内）' },
+        { value: '〜30分',    label: '〜30分' },
+        { value: '〜45分',    label: '〜45分' },
+        { value: '〜1時間',   label: '〜1時間' },
+        { value: '1時間以上可', label: '1時間以上でも可' },
+      ],
+    },
+  ];
 
-  /**
-   * 通勤ペナルティ係数（短時間希望 → 駅遠エリアを下げる）
-   * @param {string} commute
-   * @param {object} areaScore
-   * @returns {number} 係数 0.5〜1.0
-   */
-  function commuteMultiplier(commute, areaScore) {
-    if (commute === '〜15分' && areaScore.access <= 2) return 0.5;
-    if (commute === '〜30分' && areaScore.access <= 2) return 0.7;
-    return 1.0;
-  }
+  /** Step 2: 重視条件チェックボックス */
+  var CONDITION_OPTIONS = [
+    { value: '家賃の安さ',         label: '家賃の安さ',       scoreKey: 'cheap' },
+    { value: '駅近',               label: '駅近・交通アクセス', scoreKey: 'access' },
+    { value: '治安の良さ',         label: '治安・安全性',      scoreKey: 'safe' },
+    { value: 'おしゃれな街並み',   label: 'おしゃれな雰囲気',  scoreKey: 'stylish' },
+    { value: 'スーパー・コンビニ近く', label: '生活利便性',    scoreKey: 'convenient' },
+    { value: '自然・公園近く',     label: '自然・落ち着いた環境', scoreKey: 'nature' },
+    { value: '学生・若者が多い',   label: '学生・若者が多い',  scoreKey: 'young' },
+    { value: '築浅・新築',         label: '築浅・きれいな部屋', scoreKey: 'new' },
+  ];
 
-  /**
-   * メイン診断関数
-   * @param {{ budget:string, commute:string, conditions:string[] }} values
-   * @param {Area[]} areas
-   * @param {ConditionOption[]} conditionOptions - scoreKeyのマッピングに使用
-   * @param {number} [topN=3]
-   * @returns {{ area:Area, score:number, matchPct:number }[]}
-   */
-  function diagnose(values, areas, conditionOptions, topN) {
-    topN = topN || 3;
-    var userBudget = budgetToNumber(values.budget);
-    var selectedConditions = values.conditions || [];
-
-    // conditionOptions から { value -> scoreKey } のマップを作成
-    var conditionKeyMap = {};
-    conditionOptions.forEach(function (opt) {
-      conditionKeyMap[opt.value] = opt.scoreKey;
-    });
-
-    var scored = areas.map(function (area) {
-      // 予算オーバーのエリアはスコア大幅減
-      var budgetThreshold = thresholdToNumber(area.excludeIfBudgetBelow);
-      var budgetPenalty = (budgetThreshold > 0 && userBudget < budgetThreshold) ? -6 : 0;
-
-      // 選択条件がある場合はスコアリング、ない場合はデフォルトスコア
-      var conditionScore = 0;
-      if (selectedConditions.length > 0) {
-        selectedConditions.forEach(function (cond) {
-          var key = conditionKeyMap[cond];
-          if (key && area.score[key] != null) {
-            conditionScore += area.score[key];
-          }
-        });
-      } else {
-        // 条件未選択時: アクセス・治安・利便性の平均
-        conditionScore = area.score.access + area.score.safe + area.score.convenient;
-      }
-
-      var multiplier = commuteMultiplier(values.commute, area.score);
-      var rawScore = (conditionScore + budgetPenalty) * multiplier;
-
-      return { area: area, rawScore: rawScore };
-    });
-
-    // 降順ソート
-    scored.sort(function (a, b) { return b.rawScore - a.rawScore; });
-
-    // 上位N件を取得してmatchPctを計算
-    var topItems = scored.slice(0, topN);
-    var maxScore = topItems[0] ? topItems[0].rawScore : 1;
-    if (maxScore <= 0) maxScore = 1;
-
-    return topItems.map(function (item) {
-      return {
-        area: item.area,
-        score: item.rawScore,
-        matchPct: Math.max(0, Math.round((item.rawScore / maxScore) * 100)),
-      };
-    });
-  }
-
-  return { diagnose: diagnose };
+  return {
+    STEP1_FIELDS: STEP1_FIELDS,
+    STEP2_SELECTS: STEP2_SELECTS,
+    CONDITION_OPTIONS: CONDITION_OPTIONS,
+  };
 })();

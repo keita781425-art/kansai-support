@@ -1,72 +1,44 @@
 /**
- * lib/gasClient.js
+ * lib/validate.js
  *
- * Next.js移行時: lib/gasClient.ts として使用
- * GASへのPOSTをラップします。
- * Next.js化する際は app/api/submit/route.ts を作成してサーバーサイドで呼ぶことを推奨。
+ * Next.js移行時: lib/validate.ts として使用
+ * サーバー/クライアント両方で使えるピュア関数のみ定義します。
  *
- * --- Next.js移行後の構成例 ---
- * app/api/submit/route.ts:
- *   import { postToGAS } from '@/lib/gasClient'
- *   export async function POST(req: Request) {
- *     const body = await req.json()
- *     const result = await postToGAS(body)
- *     return Response.json(result)
- *   }
+ * 型定義例:
+ *   type FieldConfig = { id:string; required:boolean; errorMessage?:string }
+ *   type ValidationResult = { valid:boolean; errors:Record<string,string> }
+ *   export function validateFields(values: Record<string,string>, fields: FieldConfig[]): ValidationResult
  */
 
-var GASClient = (function () {
-
-  // ▼▼▼ Google Apps Script のデプロイURLをここに設定してください ▼▼▼
-  var GAS_URL = 'https://script.google.com/macros/s/AKfycbyEaa_jYcKk6gZg6B-sSttmlBbfhi4fxy2KZwFbZoDIWwhqnFtQ3phDV7CIHC6oM8C3iQ/exec';
+var Validate = (function () {
 
   /**
-   * フォーム送信データをGASへPOSTする
-   * @param {FormPayload} payload
-   * @returns {Promise<{ ok: boolean, error?: string }>}
+   * フィールドリストに対してバリデーションを実行
+   * @param {Record<string, string>} values  フィールドID -> 入力値
+   * @param {FieldConfig[]} fields
+   * @returns {{ valid: boolean, errors: Record<string, string> }}
    */
-  function postToGAS(payload) {
-    if (GAS_URL.indexOf('YOUR_DEPLOYMENT_ID') >= 0) {
-      console.warn('[GASClient] GAS_URLが未設定です。実際には送信されません。', payload);
-      return Promise.resolve({ ok: true, skipped: true });
-    }
-
-    return fetch(GAS_URL, {
-      method: 'POST',
-      mode: 'no-cors', // GASはCORSヘッダーを返さないため
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    })
-      .then(function () {
-        return { ok: true };
-      })
-      .catch(function (err) {
-        console.error('[GASClient] 送信エラー:', err);
-        return { ok: false, error: err.message };
-      });
+  function validateFields(values, fields) {
+    var errors = {};
+    fields.forEach(function (field) {
+      if (field.required && !values[field.id]) {
+        errors[field.id] = field.errorMessage || (field.label + 'を入力してください');
+      }
+    });
+    return { valid: Object.keys(errors).length === 0, errors: errors };
   }
 
   /**
-   * フォームデータをAPIペイロード形式に変換する
-   * @param {object} formData
-   * @returns {FormPayload}
+   * 電話番号の簡易フォーマットチェック
+   * @param {string} phone
+   * @returns {boolean}
    */
-  function buildPayload(formData) {
-    return {
-      timestamp: new Date().toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' }),
-      name: formData.name || '',
-      phone: formData.phone || '',
-      lineName: formData.lineName || '',
-      workplace: formData.workplace || '',
-      moveIn: formData.moveIn || '',
-      budget: formData.budget || '',
-      commute: formData.commute || '',
-      conditions: (formData.conditions || []).join('、'),
-    };
+  function isValidPhone(phone) {
+    return /^[\d\-\+\(\)\s]{7,15}$/.test(phone.trim());
   }
 
   return {
-    postToGAS: postToGAS,
-    buildPayload: buildPayload,
+    validateFields: validateFields,
+    isValidPhone: isValidPhone,
   };
 })();
