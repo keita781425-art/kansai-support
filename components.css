@@ -11,7 +11,7 @@
  *   .btn-*        → components/Button/Button.module.css
  *   .cta-*        → components/CTA/CTA.module.css
  */
-
+ 
 /* ━━━━━━━━━━━━━━━━━━━━━━━
    Header
    components/Header
@@ -40,7 +40,7 @@
 .logo-mark svg { width: 20px; height: 20px; fill: white; }
 .logo-text { font-size: 14px; font-weight: 700; color: var(--color-text); line-height: 1.2; }
 .logo-text span { display: block; font-size: 10px; font-weight: 400; color: var(--color-muted); }
-
+ 
 /* ━━━━━━━━━━━━━━━━━━━━━━━
    Hero
    components/Hero
@@ -71,7 +71,7 @@
 }
 .hero h1 span { color: var(--color-primary); }
 .hero p { font-size: 14px; color: var(--color-muted); margin-bottom: 28px; }
-
+ 
 /* ━━━━━━━━━━━━━━━━━━━━━━━
    StepIndicator
    components/StepIndicator
@@ -116,7 +116,7 @@
   transition: background 0.3s;
 }
 .step-line.done { background: var(--color-secondary); }
-
+ 
 /* ━━━━━━━━━━━━━━━━━━━━━━━
    FormSection
    components/FormSection
@@ -146,14 +146,14 @@
   background: var(--color-primary);
   border-radius: 2px;
 }
-
+ 
 /* ━━━━━━━━━━━━━━━━━━━━━━━
    FormField
    components/FormField
    ━━━━━━━━━━━━━━━━━━━━━━━ */
 .field { margin-bottom: 16px; }
 .field:last-child { margin-bottom: 0; }
-
+ 
 .field label {
   display: block;
   font-size: 13px;
@@ -163,7 +163,7 @@
 }
 .field label .req { color: var(--color-error); margin-left: 2px; font-size: 12px; }
 .field label .opt { color: var(--color-muted); font-size: 11px; font-weight: 400; margin-left: 4px; }
-
+ 
 .field input[type="text"],
 .field input[type="tel"],
 .field select {
@@ -204,7 +204,7 @@
   display: none;
 }
 .field-error.show { display: block; }
-
+ 
 /* ━━━━━━━━━━━━━━━━━━━━━━━
    CheckboxGrid
    components/CheckboxGrid
@@ -257,7 +257,7 @@
   transform: rotate(45deg) translate(-1px, -1px);
   display: block;
 }
-
+ 
 /* ━━━━━━━━━━━━━━━━━━━━━━━
    Button
    components/Button
@@ -280,7 +280,7 @@
 }
 .btn-primary:active { transform: scale(0.98); background: var(--color-primary-dark); }
 .btn-primary:disabled { background: var(--color-border); color: var(--color-muted); cursor: not-allowed; }
-
+ 
 .btn-line {
   display: flex;
   width: 100%;
@@ -300,7 +300,7 @@
   text-decoration: none;
 }
 .btn-line:active { transform: scale(0.98); background: var(--color-secondary-dark); }
-
+ 
 .btn-text {
   background: none;
   border: none;
@@ -311,14 +311,14 @@
   text-decoration: underline;
   padding: 4px;
 }
-
+ 
 .form-actions {
   padding: 16px;
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
-
+ 
 /* ━━━━━━━━━━━━━━━━━━━━━━━
    AreaCard
    components/AreaCard
@@ -353,15 +353,27 @@
 .rank-3 { background: #FBE9E7; color: #BF360C; }
 .area-name { font-size: 18px; font-weight: 700; }
 .area-sub  { font-size: 12px; color: var(--color-muted); margin-top: 2px; }
-
+ 
 .area-body { padding: 14px 16px; }
+.commute-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-secondary-dark);
+  background: var(--color-secondary-light);
+  border-radius: var(--radius-sm);
+  padding: 6px 10px;
+  margin-bottom: 10px;
+}
 .area-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
 .tag { font-size: 12px; padding: 4px 10px; border-radius: 20px; font-weight: 500; }
 .tag-blue  { background: var(--color-primary-light); color: var(--color-primary); }
 .tag-green { background: var(--color-secondary-light); color: var(--color-secondary-dark); }
 .tag-gray  { background: var(--color-bg); color: var(--color-muted); }
 .area-desc { font-size: 13px; color: var(--color-muted); line-height: 1.7; }
-
+ 
 .match-bar-wrap { margin-top: 12px; }
 .match-label {
   font-size: 11px;
@@ -377,7 +389,7 @@
   background: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
   transition: width 1s ease;
 }
-
+ 
 /* ━━━━━━━━━━━━━━━━━━━━━━━
    ResultHeader
    pages/ResultPage (上部見出し)
@@ -390,7 +402,7 @@
 }
 .result-header h2 { font-size: 22px; font-weight: 700; margin-bottom: 8px; }
 .result-header p  { font-size: 13px; color: var(--color-muted); }
-
+ 
 /* ━━━━━━━━━━━━━━━━━━━━━━━
    CTA
    components/CTA
@@ -412,7 +424,7 @@
   padding: 16px 20px 32px;
   line-height: 1.6;
 }
-
+ 
 /* ━━━━━━━━━━━━━━━━━━━━━━━
    Loading
    components/LoadingScreen
@@ -429,7 +441,7 @@
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 .loading-text { font-size: 15px; color: var(--color-muted); }
-
+ 
 /* ━━━━━━━━━━━━━━━━━━━━━━━
    Toast
    components/Toast
@@ -450,7 +462,7 @@
   pointer-events: none;
 }
 .toast.show { transform: translateX(-50%) translateY(0); }
-
+ 
 /* ━━━━━━━━━━━━━━━━━━━━━━━
    Page screen switching
    ━━━━━━━━━━━━━━━━━━━━━━━ */
