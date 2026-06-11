@@ -7,7 +7,9 @@
  * Next.js移行時: lib/lineData.ts として使用
  * 型定義例:
  *   type LineId = 'midosuji'|'hankyu_kobe'|'hankyu_kyoto'|'hanshin'|'jr_kobe'|'jr_kyoto'|
- *                  'jr_osaka_loop'|'kintetsu_nara'|'kintetsu_kyoto'|'tanimachi'|'keihan'|'jr_naniwasuji'
+ *                  'jr_osaka_loop'|'kintetsu_nara'|'kintetsu_kyoto'|'tanimachi'|'keihan'|
+ *                  'jr_naniwasuji'|'jr_nara'|'jr_kansai'|'subway_karasuma'|'subway_kobe'|
+ *                  'subway_nagahori'|'randen'|'nankai'|'jr_takatsuki'|'eizan'
  *   type StationEntry = { keywords:string[]; lines:LineId[] }
  */
  
@@ -22,7 +24,7 @@ var LineData = (function () {
     { keywords: ['梅田', 'うめだ', '大阪駅', 'おおさか駅'], lines: ['midosuji', 'hankyu_kobe', 'hankyu_kyoto', 'hanshin', 'jr_osaka_loop', 'jr_kobe', 'jr_kyoto'] },
     { keywords: ['難波', 'なんば', 'ナンバ'], lines: ['midosuji', 'kintetsu_nara', 'jr_naniwasuji'] },
     { keywords: ['天王寺', 'てんのうじ', '阿倍野'], lines: ['midosuji', 'tanimachi', 'jr_osaka_loop', 'jr_kansai'] },
-    { keywords: ['新大阪', 'しんおおさか'], lines: ['midosuji', 'jr_kyoto', 'jr_kobe'] },
+    { keywords: ['新大阪', 'しんおおさか', '東三国', 'ひがしみくに'], lines: ['midosuji', 'jr_kyoto', 'jr_kobe'] },
     { keywords: ['京都駅', 'きょうと駅', '京都'], lines: ['jr_kyoto', 'kintetsu_kyoto', 'jr_nara'] },
     { keywords: ['四条', 'しじょう', '烏丸'], lines: ['hankyu_kyoto', 'subway_karasuma'] },
     { keywords: ['西院', 'さいいん'], lines: ['hankyu_kyoto', 'randen'] },
@@ -38,11 +40,19 @@ var LineData = (function () {
     { keywords: ['長居', 'ながい', '我孫子', 'あびこ'], lines: ['midosuji'] },
     { keywords: ['心斎橋', 'しんさいばし'], lines: ['midosuji', 'subway_nagahori'] },
     { keywords: ['北堀江', '西長堀', 'にしながほり'], lines: ['subway_nagahori'] },
-    { keywords: ['尼崎', 'あまがさき'], lines: ['jr_kobe', 'hanshin'] },
-    { keywords: ['豊中', 'とよなか'], lines: ['hankyu_kyoto', 'midosuji'] },
+    { keywords: ['尼崎', 'あまがさき'], lines: ['jr_kobe', 'hanshin', 'hankyu_kobe'] },
+    { keywords: ['豊中', 'とよなか', '曽根', 'そね'], lines: ['hankyu_kyoto', 'midosuji'] },
     { keywords: ['枚方', 'ひらかた'], lines: ['keihan'] },
     { keywords: ['東大阪', '布施', 'ふせ'], lines: ['kintetsu_nara'] },
     { keywords: ['堺', 'さかい'], lines: ['jr_kansai', 'nankai'] },
+    { keywords: ['福島', 'ふくしま', '野田', 'のだ'], lines: ['jr_osaka_loop', 'jr_kobe', 'hanshin'] },
+    { keywords: ['高槻', 'たかつき'], lines: ['jr_kyoto', 'jr_takatsuki', 'hankyu_kyoto'] },
+    { keywords: ['千里中央', 'せんりちゅうおう', '千里', 'せんり'], lines: ['midosuji'] },
+    { keywords: ['桂', 'かつら', '洛西口', 'らくさいぐち'], lines: ['hankyu_kyoto'] },
+    { keywords: ['出町柳', 'でまちやなぎ'], lines: ['keihan', 'eizan'] },
+    { keywords: ['山科', 'やましな'], lines: ['jr_kyoto', 'keihan', 'subway_karasuma'] },
+    { keywords: ['岡本', 'おかもと', '摂津本山', 'せっつもとやま'], lines: ['jr_kobe', 'hankyu_kobe'] },
+    { keywords: ['生駒', 'いこま'], lines: ['kintetsu_nara'] },
   ];
  
   /**
