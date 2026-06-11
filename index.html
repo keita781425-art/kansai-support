@@ -23,53 +23,30 @@
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
 
   <!-- Styles: Next.js移行時は app/globals.css として import -->
-  <link rel="stylesheet" href="styles/globals.css">
-  <link rel="stylesheet" href="styles/components.css">
+    <!-- Styles -->
+  <link rel="stylesheet" href="globals.css">
+  <link rel="stylesheet" href="components.css">
 </head>
 <body>
 
-  <!--
-    アプリのルートDOM構造
-    Next.js移行時: app/layout.tsx の <body> 内
-  -->
   <div id="app-root">
 
-    <!-- Header: components/Header/Header.tsx -->
     <div id="app-header"></div>
 
-    <!-- Hero + StepIndicator: components/Hero/Hero.tsx -->
     <div id="app-hero"></div>
 
-    <!-- Main content: 各ページで切り替わる領域 -->
     <main id="app-main" role="main"></main>
 
   </div>
 
-  <!--
-    Scripts
-    ロード順序は依存関係の順番通り:
-      1. lib/   (ピュア関数・データ。UIに依存しない)
-      2. components/ (描画関数。libに依存)
-      3. pages/ (アプリ制御。libとcomponentsに依存)
-
-    Next.js移行時:
-      - lib/*.js       → lib/*.ts (export functionに変換)
-      - components/*.js → components/*/*.tsx (JSX/Reactに変換)
-      - pages/app.js   → app/page.tsx + useReducer
-  -->
-
-  <!-- lib: ピュア関数・設定・データ -->
-  <script src="lib/areaData.js"></script>
-  <script src="lib/formConfig.js"></script>
-  <script src="lib/diagnose.js"></script>
-  <script src="lib/validate.js"></script>
-  <script src="lib/gasClient.js"></script>
-
-  <!-- components: UI描画関数 -->
-  <script src="components/index.js"></script>
-
-  <!-- pages: アプリ制御・ルーティング -->
-  <script src="pages/app.js"></script>
+  <!-- JavaScript -->
+  <script src="areaData.js"></script>
+  <script src="formConfig.js"></script>
+  <script src="diagnose.js"></script>
+  <script src="validate.js"></script>
+  <script src="gasClient.js"></script>
+  <script src="index.js"></script>
+  <script src="app.js"></script>
 
 </body>
 </html>
