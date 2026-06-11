@@ -15,11 +15,11 @@
  * Next.js化の際はDOMの直接操作をReact Stateに置き換えてください。
  * 各関数の引数がそのままReactコンポーネントのpropsに対応します。
  */
-
+ 
 var Components = (function () {
-
+ 
   /* ━━ Header ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-
+ 
   function renderHeader(container) {
     container.innerHTML =
       '<header class="header" role="banner">' +
@@ -32,9 +32,9 @@ var Components = (function () {
         '</div>' +
       '</header>';
   }
-
+ 
   /* ━━ Hero + StepIndicator ━━━━━━━━━━━━━━━ */
-
+ 
   /**
    * @param {HTMLElement} container
    * @param {{ currentStep: number }} props
@@ -48,7 +48,7 @@ var Components = (function () {
         renderStepIndicatorHTML(props.currentStep) +
       '</div>';
   }
-
+ 
   /**
    * @param {number} current  1〜3
    * @returns {string} HTML文字列
@@ -75,9 +75,9 @@ var Components = (function () {
     html += '</div>';
     return html;
   }
-
+ 
   /* ━━ Step1Form ━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-
+ 
   /**
    * @param {HTMLElement} container
    * @param {{ fields: FieldConfig[], errors: Record<string,string> }} props
@@ -101,7 +101,7 @@ var Components = (function () {
         '</div>'
       );
     }).join('');
-
+ 
     container.innerHTML =
       '<div class="screen active" id="screen1">' +
         '<div class="form-section">' +
@@ -114,9 +114,9 @@ var Components = (function () {
         '<div class="bottom-spacer"></div>' +
       '</div>';
   }
-
+ 
   /* ━━ Step2Form ━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-
+ 
   /**
    * @param {HTMLElement} container
    * @param {{ selects: SelectConfig[], conditionOptions: ConditionOption[], errors: Record<string,string> }} props
@@ -138,7 +138,7 @@ var Components = (function () {
         '</div>'
       );
     }).join('');
-
+ 
     var conditionsHTML = props.conditionOptions.map(function (opt) {
       return (
         '<label class="check-item" data-value="' + opt.value + '">' +
@@ -148,7 +148,7 @@ var Components = (function () {
         '</label>'
       );
     }).join('');
-
+ 
     container.innerHTML =
       '<div class="screen active" id="screen2">' +
         '<div class="form-section">' +
@@ -167,7 +167,7 @@ var Components = (function () {
         '</div>' +
         '<div class="bottom-spacer"></div>' +
       '</div>';
-
+ 
     // チェックボックスのトグル
     // label要素クリックでブラウザがネイティブにcheckboxをトグルするため、
     // checkboxのchangeイベントを監視してクラスを同期する（二重トグル防止）
@@ -178,9 +178,9 @@ var Components = (function () {
       });
     });
   }
-
+ 
   /* ━━ LoadingScreen ━━━━━━━━━━━━━━━━━━━━━━ */
-
+ 
   function renderLoadingScreen(container) {
     container.innerHTML =
       '<div class="screen active loading-screen" id="loading-screen" role="status" aria-live="polite">' +
@@ -188,27 +188,27 @@ var Components = (function () {
         '<div class="loading-text">あなたにぴったりのエリアを<br>診断しています…</div>' +
       '</div>';
   }
-
+ 
   /* ━━ ResultPage ━━━━━━━━━━━━━━━━━━━━━━━━━ */
-
+ 
   /**
    * @param {HTMLElement} container
    * @param {{ name:string, workplace:string, budget:string, commute:string, results:DiagnoseResult[], lineCTAUrl:string }} props
    */
   function renderResultPage(container, props) {
     var displayName = props.name ? props.name.split(/[\s　]/)[0] + 'さん' : '';
-
+ 
     var cardsHTML = props.results.map(function (item, i) {
       return renderAreaCardHTML(item, i + 1);
     }).join('');
-
+ 
     container.innerHTML =
       '<div class="screen active" id="screen3">' +
         '<div class="result-header">' +
           '<div class="hero-badge" style="background:var(--color-primary-light);color:var(--color-primary)">✦ 診断完了</div>' +
           '<h2>' + displayName + 'へのおすすめエリア</h2>' +
           '<p>' +
-            '勤務地：' + props.workplace + '　' +
+            '最寄り駅：' + props.workplace + '　' +
             '予算：' + props.budget + '　' +
             '通勤：' + props.commute +
           '</p>' +
@@ -221,7 +221,7 @@ var Components = (function () {
         '</p>' +
         '<div class="bottom-spacer"></div>' +
       '</div>';
-
+ 
     // マッチ度バーのアニメーション（DOM描画後に幅を設定）
     setTimeout(function () {
       props.results.forEach(function (item, i) {
@@ -230,12 +230,12 @@ var Components = (function () {
       });
     }, 100);
   }
-
+ 
   /* ━━ AreaCard ━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-
+ 
   var MEDALS = ['🥇', '🥈', '🥉'];
   var TAG_CLASSES = ['tag tag-blue', 'tag tag-green', 'tag tag-gray'];
-
+ 
   /**
    * @param {DiagnoseResult} item
    * @param {number} rank  1〜3
@@ -246,7 +246,11 @@ var Components = (function () {
     var tagsHTML = a.tags.map(function (t, j) {
       return '<span class="' + TAG_CLASSES[j] + '">' + t + '</span>';
     }).join('');
-
+ 
+    var commuteBadgeHTML = item.lineMatched
+      ? '<div class="commute-badge">🚃 入力された最寄り駅から乗り換えなしでアクセス可能</div>'
+      : '';
+ 
     return (
       '<div class="area-card" aria-label="' + rank + '位：' + a.name + '">' +
         '<div class="area-card-header">' +
@@ -257,6 +261,7 @@ var Components = (function () {
           '</div>' +
         '</div>' +
         '<div class="area-body">' +
+          commuteBadgeHTML +
           '<div class="area-tags">' + tagsHTML + '</div>' +
           '<p class="area-desc">' + a.desc + '</p>' +
           '<div class="match-bar-wrap">' +
@@ -272,9 +277,9 @@ var Components = (function () {
       '</div>'
     );
   }
-
+ 
   /* ━━ CTA ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-
+ 
   /**
    * @param {string} lineUrl
    * @returns {string} HTML文字列
@@ -291,7 +296,7 @@ var Components = (function () {
       '</div>'
     );
   }
-
+ 
   function renderLineIconSVG() {
     return (
       '<svg width="24" height="24" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
@@ -301,7 +306,7 @@ var Components = (function () {
       '</svg>'
     );
   }
-
+ 
   return {
     renderHeader: renderHeader,
     renderHero: renderHero,
