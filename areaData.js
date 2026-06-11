@@ -126,7 +126,7 @@ var AreaData = (function () {
       desc: '阪急宝塚線沿いの閑静な住宅街。大阪梅田まで電車で20分前後とアクセスも良く、落ち着いた環境でゆったり暮らしたい方に向いています。',
       score: { cheap: 3, access: 4, safe: 5, stylish: 3, convenient: 3, nature: 4, young: 2, new: 3 },
       excludeIfBudgetBelow: null,
-      lines: ['hankyu_kyoto'],
+      lines: ['hankyu_takarazuka', 'midosuji'],
     },
  
     // ───────── 京都 ─────────
