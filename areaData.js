@@ -4,11 +4,19 @@
  * Next.js移行時: lib/areaData.ts として使用
  * 型定義例:
  *   type ScoreKey = 'cheap'|'access'|'safe'|'stylish'|'convenient'|'nature'|'young'|'new'
- *   type Area = { id:string; name:string; city:string; tags:string[]; desc:string; score:Record<ScoreKey,number>; excludeIfBudgetBelow:string|null }
+ *   type LineId = 'midosuji'|'hankyu_kobe'|'hankyu_kyoto'|'hanshin'|'jr_kobe'|'jr_kyoto'|
+ *                  'jr_osaka_loop'|'kintetsu_nara'|'kintetsu_kyoto'|'tanimachi'|'keihan'|
+ *                  'jr_naniwasuji'|'jr_nara'|'jr_kansai'|'subway_karasuma'|'subway_kobe'|
+ *                  'subway_nagahori'|'randen'|'nankai'
+ *   type Area = {
+ *     id:string; name:string; city:string; tags:string[]; desc:string;
+ *     score:Record<ScoreKey,number>; excludeIfBudgetBelow:string|null;
+ *     lines: LineId[]   // このエリアからアクセスできる路線
+ *   }
  */
-
+ 
 var AreaData = (function () {
-
+ 
   /** @type {Area[]} */
   var AREAS = [
     {
@@ -19,6 +27,7 @@ var AreaData = (function () {
       desc: '御堂筋線・谷町線・近鉄が集まる南大阪の玄関口。あべのハルカスを擁する百貨店・スーパーが揃い、梅田・難波・奈良方面へスムーズにアクセスできます。',
       score: { cheap: 2, access: 5, safe: 4, stylish: 3, convenient: 5, nature: 2, young: 3, new: 3 },
       excludeIfBudgetBelow: null,
+      lines: ['midosuji', 'tanimachi', 'jr_osaka_loop', 'jr_kansai', 'kintetsu_nara'],
     },
     {
       id: 'esaka',
@@ -28,6 +37,7 @@ var AreaData = (function () {
       desc: '御堂筋線で梅田まで約15分。北大阪の落ち着いた住宅地で、大学生・若手社会人に根強い人気。スーパーも複数あり生活環境が整っています。',
       score: { cheap: 3, access: 4, safe: 5, stylish: 3, convenient: 4, nature: 3, young: 4, new: 3 },
       excludeIfBudgetBelow: null,
+      lines: ['midosuji', 'jr_kyoto'],
     },
     {
       id: 'horie',
@@ -37,6 +47,7 @@ var AreaData = (function () {
       desc: '心斎橋から徒歩圏内の洗練されたエリア。個性的なカフェや雑貨店が軒を連ね、長堀鶴見緑地線の利便性と都会的な雰囲気を両立しています。',
       score: { cheap: 1, access: 4, safe: 3, stylish: 5, convenient: 4, nature: 2, young: 5, new: 4 },
       excludeIfBudgetBelow: '5万円',
+      lines: ['subway_nagahori', 'midosuji'],
     },
     {
       id: 'saiin',
@@ -46,6 +57,7 @@ var AreaData = (function () {
       desc: '阪急京都線・嵐電が通り、京都中心部へすぐ。学生が多く活気ある街並みで、家賃相場が比較的低め。京都で暮らしたい方の定番エリアです。',
       score: { cheap: 4, access: 4, safe: 4, stylish: 4, convenient: 4, nature: 2, young: 5, new: 3 },
       excludeIfBudgetBelow: null,
+      lines: ['hankyu_kyoto', 'randen', 'subway_karasuma'],
     },
     {
       id: 'fushimi',
@@ -55,6 +67,7 @@ var AreaData = (function () {
       desc: '3路線が通り大阪方面にも通いやすい京都南部のエリア。伏見稲荷や酒蔵が点在し、下町の温かみある暮らしが楽しめます。家賃も市内比較で安め。',
       score: { cheap: 4, access: 3, safe: 4, stylish: 3, convenient: 3, nature: 4, young: 3, new: 3 },
       excludeIfBudgetBelow: null,
+      lines: ['kintetsu_kyoto', 'jr_nara', 'keihan'],
     },
     {
       id: 'sannomiya',
@@ -64,6 +77,7 @@ var AreaData = (function () {
       desc: '神戸の中心地で4路線が集結。ハーバーランドや北野異人館など観光スポットも身近で、おしゃれで国際的な雰囲気が魅力のエリアです。',
       score: { cheap: 2, access: 5, safe: 4, stylish: 5, convenient: 5, nature: 3, young: 4, new: 4 },
       excludeIfBudgetBelow: '6万円',
+      lines: ['jr_kobe', 'hankyu_kobe', 'hanshin', 'subway_kobe'],
     },
     {
       id: 'nishinomiya',
@@ -73,6 +87,7 @@ var AreaData = (function () {
       desc: '阪神・阪急2路線で大阪・神戸どちらにもアクセス良好。閑静な住宅地として人気が高く、自然も豊か。治安の良さと住みやすさが光るエリアです。',
       score: { cheap: 3, access: 4, safe: 5, stylish: 3, convenient: 4, nature: 4, young: 2, new: 3 },
       excludeIfBudgetBelow: null,
+      lines: ['hankyu_kobe', 'hanshin', 'jr_kobe'],
     },
     {
       id: 'nagai',
@@ -82,6 +97,7 @@ var AreaData = (function () {
       desc: '御堂筋線で天王寺・梅田へ通いやすく、長居公園がある緑豊かなエリア。家賃相場が低く、コスパを重視する方に人気のエリアです。',
       score: { cheap: 5, access: 4, safe: 4, stylish: 2, convenient: 4, nature: 4, young: 3, new: 2 },
       excludeIfBudgetBelow: null,
+      lines: ['midosuji'],
     },
     {
       id: 'ibaraki',
@@ -91,6 +107,7 @@ var AreaData = (function () {
       desc: 'JR・阪急の2路線が通り、大阪・京都双方へのアクセスが良好。大阪大学の学生も多く、ほどよく若者が集まる住みやすいエリアです。',
       score: { cheap: 4, access: 4, safe: 4, stylish: 2, convenient: 3, nature: 3, young: 4, new: 3 },
       excludeIfBudgetBelow: null,
+      lines: ['jr_kyoto', 'hankyu_kyoto'],
     },
     {
       id: 'nara',
@@ -100,8 +117,9 @@ var AreaData = (function () {
       desc: '近鉄で京都・大阪方面へアクセス可能。豊かな自然と非常に安い家賃が魅力で、通勤時間をある程度許容できる方には理想的な選択肢です。',
       score: { cheap: 5, access: 3, safe: 5, stylish: 2, convenient: 3, nature: 5, young: 2, new: 3 },
       excludeIfBudgetBelow: null,
+      lines: ['kintetsu_nara', 'jr_nara'],
     },
   ];
-
+ 
   return { AREAS: AREAS };
 })();
