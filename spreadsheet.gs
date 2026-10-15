@@ -20,8 +20,8 @@
 
 var SHEET_NAME = '問い合わせ一覧';
 
-// 新規問い合わせの通知先（空にすると通知しない）
-var NOTIFY_EMAIL = 'keita781425@gmail.com';
+// 新規問い合わせの通知先（デフォルト：このスクリプトの持ち主＝自分のGmail。空文字にすると通知しない）
+var NOTIFY_EMAIL = Session.getEffectiveUser().getEmail();
 
 // 対応ステータスの選択肢
 var STATUS_OPTIONS = ['未対応', '対応中', '送客済み', '成約', '失注'];
