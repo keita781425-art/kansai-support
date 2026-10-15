@@ -40,6 +40,7 @@ var COLUMNS = [
   { key: '_memo',      header: '担当者メモ',       width: 240 },
   { key: '_sentDate',  header: '送客日',           width: 110 },
   { key: '_wonDate',   header: '成約日',           width: 110 },
+  { key: 'consent',    header: '情報提供への同意', width: 120 },
 ];
 
 function doPost(e) {
@@ -157,6 +158,9 @@ function jsonResponse(obj) {
 function fixExistingRows() {
   var sheet = getOrCreateSheet();
   sheet.getRange(1, 1).setValue('送信日時');
+  // 見出し行を最新の列構成にそろえる（同意列の追加など）
+  sheet.getRange(1, 1, 1, COLUMNS.length).setValues([COLUMNS.map(function (c) { return c.header; })])
+    .setBackground('#1A6FD4').setFontColor('#FFFFFF').setFontWeight('bold');
   var last = sheet.getLastRow();
   if (last < 2) return;
 

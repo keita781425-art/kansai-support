@@ -62,6 +62,7 @@ var GASClient = (function () {
       budget: formData.budget || '',
       commute: formData.commute || '',
       conditions: (formData.conditions || []).join('、'),
+      consent: formData.consent ? '同意済み' : '',
     };
   }
 

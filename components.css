@@ -469,3 +469,39 @@
 .screen { display: none; }
 .screen.active { display: block; }
 .bottom-spacer { height: 32px; }
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━
+   Consent（個人情報の提供への同意）
+   ━━━━━━━━━━━━━━━━━━━━━━━ */
+.consent-block {
+  padding: 0 var(--space-md);
+  margin-top: var(--space-md);
+}
+.consent-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: var(--color-surface);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--color-text);
+  cursor: pointer;
+}
+.consent-item.error {
+  border-color: var(--color-error);
+  background: var(--color-error-light);
+}
+.consent-item input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  margin-top: 1px;
+  flex-shrink: 0;
+  accent-color: var(--color-primary);
+}
+.consent-item a,
+.disclaimer a {
+  color: var(--color-primary);
+}

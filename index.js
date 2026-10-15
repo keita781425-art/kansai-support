@@ -161,6 +161,18 @@ var Components = (function () {
             conditionsHTML +
           '</div>' +
         '</div>' +
+        '<div class="consent-block">' +
+          '<label class="consent-item' + (props.errors && props.errors.consent ? ' error' : '') + '" for="consent">' +
+            '<input type="checkbox" id="consent" aria-required="true">' +
+            '<span>' +
+              '<a href="privacy.html" target="_blank" rel="noopener">プライバシーポリシー</a>に同意し、' +
+              'ご相談のために入力内容を提携する不動産会社へ提供することに同意します' +
+            '</span>' +
+          '</label>' +
+          (props.errors && props.errors.consent
+            ? '<div class="field-error show" role="alert">' + props.errors.consent + '</div>'
+            : '') +
+        '</div>' +
         '<div class="form-actions">' +
           '<button class="btn-primary" id="btn-submit" type="button">診断結果を見る ✦</button>' +
           '<button class="btn-text" id="btn-to-step1" type="button">← 基本情報に戻る</button>' +
@@ -217,7 +229,8 @@ var Components = (function () {
         renderCTAHTML(props.lineCTAUrl) +
         '<p class="disclaimer">' +
           '※ 診断結果はご入力の情報をもとにした参考情報です。<br>' +
-          '実際の物件状況は担当スタッフにご確認ください。' +
+          '実際の物件状況は担当スタッフにご確認ください。<br>' +
+          '<a href="privacy.html">プライバシーポリシー</a>' +
         '</p>' +
         '<div class="bottom-spacer"></div>' +
       '</div>';

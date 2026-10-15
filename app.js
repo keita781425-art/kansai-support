@@ -133,7 +133,13 @@ var App = (function () {
       selectValues[s.id] = state.formData[s.id] || '';
     });
     var result = Validate.validateFields(selectValues, FormConfig.STEP2_SELECTS);
- 
+
+    // 個人情報の提供への同意（必須）
+    if (!state.formData.consent) {
+      result.valid = false;
+      result.errors.consent = 'ご相談には、プライバシーポリシーと情報提供への同意が必要です';
+    }
+
     if (!result.valid) {
       state.errors = result.errors;
       renderCurrentPage();
@@ -170,6 +176,8 @@ var App = (function () {
     state.formData.conditions = Array.from(
       document.querySelectorAll('#conditions-grid input[type="checkbox"]:checked')
     ).map(function (cb) { return cb.value; });
+    var consentEl = document.getElementById('consent');
+    if (consentEl) state.formData.consent = consentEl.checked;
   }
  
   // 戻ってきたときにStep2の値を復元
@@ -185,6 +193,8 @@ var App = (function () {
         checkItem.querySelector('input[type="checkbox"]').checked = true;
       }
     });
+    var consentEl = document.getElementById('consent');
+    if (consentEl && state.formData.consent) consentEl.checked = true;
   }
  
   return { init: init };
