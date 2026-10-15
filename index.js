@@ -107,6 +107,11 @@ var Components = (function () {
         '<div class="form-section">' +
           '<div class="section-title">あなたのことを教えてください</div>' +
           fieldsHTML +
+          // スパム対策：人には見えない入力欄（ボットだけが埋める）
+          '<div class="hp-field" aria-hidden="true">' +
+            '<label for="hp_website">この欄は空欄のままにしてください</label>' +
+            '<input type="text" id="hp_website" name="hp_zz" tabindex="-1" autocomplete="one-time-code">' +
+          '</div>' +
         '</div>' +
         '<div class="form-actions">' +
           '<button class="btn-primary" id="btn-to-step2" type="button">次へ → 希望条件を入力</button>' +

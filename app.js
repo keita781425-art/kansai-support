@@ -26,6 +26,7 @@ var App = (function () {
     formData: {},
     errors: {},
     results: [],
+    startedAt: Date.now(), // スパム対策：入力開始時刻
   };
  
   // ━━ DOM refs ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -113,6 +114,8 @@ var App = (function () {
     }
  
     Object.assign(state.formData, values);
+    var hp = document.getElementById('hp_website');
+    state.formData._hp = hp ? hp.value : '';
     navigateTo(2);
   }
  
@@ -161,8 +164,14 @@ var App = (function () {
         3
       );
       // スプレッドシートへ送信
-      var payload = GASClient.buildPayload(state.formData);
-      GASClient.postToGAS(payload);
+      // スパム対策：見えない欄が埋まっている／入力が速すぎる（5秒未満）場合は送らない
+      var elapsedSec = Math.round((Date.now() - state.startedAt) / 1000);
+      var looksLikeBot = !!state.formData._hp || elapsedSec < 5;
+      if (!looksLikeBot) {
+        var payload = GASClient.buildPayload(state.formData);
+        payload.elapsedSec = elapsedSec;
+        GASClient.postToGAS(payload);
+      }
  
       renderCurrentPage();
     }, 500);

@@ -48,6 +48,13 @@ function doPost(e) {
   try {
     lock.waitLock(10000);
     var data = JSON.parse(e.postData.contents);
+
+    // スパム対策：明らかに不正な送信は保存しない（送信元には成功と同じ応答を返す）
+    if (!isAcceptable(data)) {
+      return jsonResponse({ status: 'ok' });
+    }
+    sanitize(data);
+
     var sheet = getOrCreateSheet();
     var rowNum = appendDataRow(sheet, data);
     notifyNewInquiry(data, rowNum);
@@ -57,6 +64,27 @@ function doPost(e) {
   } finally {
     lock.releaseLock();
   }
+}
+
+/** 受け付けてよい送信かどうか */
+function isAcceptable(data) {
+  if (!data || typeof data !== 'object') return false;
+  if (data.website) return false;                     // 見えない欄が埋まっている＝ボット
+  if (!data.name || !data.phone || !data.workplace) return false; // 必須項目なし
+  if (data.consent !== '同意済み') return false;      // 情報提供への同意なし
+  if (!/^[\d\-\+\(\)\s]{7,20}$/.test(String(data.phone))) return false; // 電話番号の形でない
+  return true;
+}
+
+/** 長すぎる入力を切り詰め、数式として解釈される先頭記号を無効化 */
+function sanitize(data) {
+  COLUMNS.forEach(function (col) {
+    var v = data[col.key];
+    if (v == null) return;
+    v = String(v).slice(0, 300);
+    if (/^[=+\-@]/.test(v) && col.key !== 'phone') v = "'" + v;
+    data[col.key] = v;
+  });
 }
 
 function getOrCreateSheet() {
