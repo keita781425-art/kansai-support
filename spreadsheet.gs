@@ -42,6 +42,8 @@ var COLUMNS = [
   { key: '_wonDate',   header: '成約日',           width: 110 },
   { key: 'consent',    header: '情報提供への同意', width: 120 },
   { key: 'source',     header: '流入元',           width: 120 },
+  { key: 'sid',        header: '受付ID',           width: 120 },
+  { key: '_lineClick', header: 'LINEボタン',       width: 150 },
 ];
 
 function doPost(e) {
@@ -49,6 +51,12 @@ function doPost(e) {
   try {
     lock.waitLock(10000);
     var data = JSON.parse(e.postData.contents);
+
+    // 導線の計測：診断結果ページの「LINEで相談」ボタンが押された記録
+    if (data && data.type === 'line_click') {
+      markLineClick(data.sid);
+      return jsonResponse({ status: 'ok' });
+    }
 
     // スパム対策：明らかに不正な送信は保存しない（送信元には成功と同じ応答を返す）
     if (!isAcceptable(data)) {
@@ -64,6 +72,27 @@ function doPost(e) {
     return jsonResponse({ status: 'error', message: err.toString() });
   } finally {
     lock.releaseLock();
+  }
+}
+
+/** 受付IDの行の「LINEボタン」列に押した日時を入れる（同じ行に1回だけ） */
+function markLineClick(sid) {
+  if (!/^[a-z0-9]{8,20}$/.test(String(sid || ''))) return;
+  var sheet = getOrCreateSheet();
+  var last = sheet.getLastRow();
+  if (last < 2) return;
+  var sidCol = columnIndex('sid');
+  var clickCol = columnIndex('_lineClick');
+  var start = Math.max(2, last - 200); // 直近200行だけ探す
+  var ids = sheet.getRange(start, sidCol, last - start + 1, 1).getValues();
+  for (var i = ids.length - 1; i >= 0; i--) {
+    if (String(ids[i][0]) === String(sid)) {
+      var cell = sheet.getRange(start + i, clickCol);
+      if (!cell.getValue()) {
+        cell.setValue('押した ' + Utilities.formatDate(new Date(), 'Asia/Tokyo', 'M/d HH:mm'));
+      }
+      return;
+    }
   }
 }
 

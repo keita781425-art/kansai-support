@@ -34,6 +34,7 @@ var GASClient = (function () {
     return fetch(GAS_URL, {
       method: 'POST',
       mode: 'no-cors', // GASはCORSヘッダーを返さないため
+      keepalive: true,  // LINEを開いて画面が切り替わっても送信が途切れないように
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
     })

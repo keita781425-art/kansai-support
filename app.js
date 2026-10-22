@@ -189,16 +189,30 @@ var App = (function () {
       // スパム対策：見えない欄が埋まっている／入力が速すぎる（5秒未満）場合は送らない
       var elapsedSec = Math.round((Date.now() - state.startedAt) / 1000);
       var looksLikeBot = !!state.formData._hp || elapsedSec < 5;
+      state.sid = '';
       if (!looksLikeBot) {
+        // 受付ID：あとで「LINEボタンを押したか」をこの行に記録するための番号
+        state.sid = Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
         var payload = GASClient.buildPayload(state.formData);
         payload.elapsedSec = elapsedSec;
+        payload.sid = state.sid;
         GASClient.postToGAS(payload);
       }
  
       renderCurrentPage();
+      bindLineClickTracking();
     }, 500);
   }
  
+  // 導線の計測：診断結果ページで「LINEで相談」ボタンが押されたら、問い合わせ一覧の同じ行に記録する
+  function bindLineClickTracking() {
+    var btn = document.getElementById('line-cta-btn');
+    if (!btn || !state.sid) return;
+    btn.addEventListener('click', function () {
+      GASClient.postToGAS({ type: 'line_click', sid: state.sid });
+    }, { once: true });
+  }
+
   function collectStep2Values() {
     FormConfig.STEP2_SELECTS.forEach(function (s) {
       var el = document.getElementById(s.id);
