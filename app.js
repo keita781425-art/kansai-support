@@ -33,7 +33,29 @@ var App = (function () {
   var $header, $hero, $main;
  
   // ━━ Init ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // ━━ 流入元（どこから来たか）━━━━━━━━━━━━━━
+  // 例：?ref=friend（知人紹介）、?utm_source=instagram（SNS別リンク）
+  // サイト内でFAQ等を行き来しても消えないよう、同じタブの間は sessionStorage に保持する
+  var SOURCE_LABELS = { friend: '知人紹介', instagram: 'Instagram', threads: 'Threads', tiktok: 'TikTok', line: 'LINE' };
+  function detectSource() {
+    var saved = '';
+    try { saved = sessionStorage.getItem('ks_source') || ''; } catch (e) {}
+    var params = new URLSearchParams(window.location.search);
+    var raw = (params.get('ref') || params.get('utm_source') || '').toLowerCase().slice(0, 40);
+    var source = raw ? (SOURCE_LABELS[raw] || raw) : '';
+    if (!source && !saved && document.referrer) {
+      try {
+        var host = new URL(document.referrer).hostname;
+        if (host && host.indexOf('kansai-shinseikatu.com') < 0) source = host;
+      } catch (e) {}
+    }
+    source = source || saved || '直接';
+    try { sessionStorage.setItem('ks_source', source); } catch (e) {}
+    return source;
+  }
+
   function init() {
+    state.formData.source = detectSource();
     $header = document.getElementById('app-header');
     $hero   = document.getElementById('app-hero');
     $main   = document.getElementById('app-main');

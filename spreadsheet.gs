@@ -41,6 +41,7 @@ var COLUMNS = [
   { key: '_sentDate',  header: '送客日',           width: 110 },
   { key: '_wonDate',   header: '成約日',           width: 110 },
   { key: 'consent',    header: '情報提供への同意', width: 120 },
+  { key: 'source',     header: '流入元',           width: 120 },
 ];
 
 function doPost(e) {

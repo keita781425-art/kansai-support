@@ -63,6 +63,7 @@ var GASClient = (function () {
       commute: formData.commute || '',
       conditions: (formData.conditions || []).join('、'),
       consent: formData.consent ? '同意済み' : '',
+      source: formData.source || '',
     };
   }
 
