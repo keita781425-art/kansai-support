@@ -8,40 +8,14 @@
 
 var FormConfig = (function () {
 
-  /** Step 1: 基本情報フィールド */
+  /** Step 1: 勤務地・通学先（名前・電話番号などの個人情報はサイトでは聞かない。相談はLINEで） */
   var STEP1_FIELDS = [
     {
-      id: 'name',
-      label: 'お名前',
-      type: 'text',
-      required: true,
-      placeholder: '例：山田 太郎',
-      autocomplete: 'name',
-      errorMessage: 'お名前を入力してください',
-    },
-    {
-      id: 'phone',
-      label: '電話番号',
-      type: 'tel',
-      required: true,
-      placeholder: '例：090-1234-5678',
-      autocomplete: 'tel',
-      errorMessage: '電話番号を入力してください',
-    },
-    {
-      id: 'lineName',
-      label: 'LINE表示名',
-      type: 'text',
-      required: false,
-      placeholder: '例：たろう',
-      autocomplete: 'off',
-    },
-    {
       id: 'workplace',
-      label: '勤務地・通学先',
+      label: '勤務地・通学先（最寄り駅）',
       type: 'text',
       required: true,
-      placeholder: '例：大阪・梅田、京都市内 など',
+      placeholder: '例：梅田、本町、京都駅、三宮 など',
       autocomplete: 'off',
       errorMessage: '勤務地・通学先を入力してください',
     },

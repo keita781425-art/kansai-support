@@ -7,13 +7,14 @@
  *  1. フォーム送信を「問い合わせ一覧」シートに1行追加
  *  2. 電話番号は文字列として保存（先頭の0が消えないように）
  *  3. 対応ステータスに「未対応」を自動セット（プルダウン付き）
- *  4. 新しい問い合わせが来たら、自分宛てにメール通知
+ *  4. 名前・電話番号つきの問い合わせが来たら、自分宛てにメール通知
+ *  5. 10/28〜 サイトでは個人情報を聞かない。診断だけの行は「診断のみ」で記録（メール通知なし）
  *
  * 【更新手順】（URLを変えずに反映する方法）
  *  1. スプレッドシート「新生活サポート_問い合わせ」> 拡張機能 > Apps Script
  *  2. 既存コードを全部消して、このファイルの中身を貼り付けて保存
- *  3. 関数「testPost」を選んで ▶実行（初回はメール送信の許可を求められるので許可）
- *     → シートにテスト行が追加され、メールが届けばOK（テスト行は削除してOK）
+ *  3. 関数「fixExistingRows」を選んで ▶実行（見出しが「診断コード」になる）
+ *     続けて「testPost」を ▶実行 → シートに「診断のみ」のテスト行が入ればOK（メールは来ない。テスト行は削除してOK）
  *  4. デプロイ > デプロイを管理 > ✏️編集 > バージョン「新バージョン」> デプロイ
  *     ※「新しいデプロイ」ではなく「デプロイを管理」から。URLが変わらずサイト側の修正不要。
  */
@@ -24,7 +25,7 @@ var SHEET_NAME = '問い合わせ一覧';
 var NOTIFY_EMAIL = Session.getEffectiveUser().getEmail();
 
 // 対応ステータスの選択肢
-var STATUS_OPTIONS = ['未対応', '対応中', '送客済み', '成約', '失注'];
+var STATUS_OPTIONS = ['診断のみ', '未対応', '対応中', '送客済み', '成約', '失注'];
 
 var COLUMNS = [
   { key: 'timestamp',  header: '送信日時',        width: 160 },
@@ -42,7 +43,7 @@ var COLUMNS = [
   { key: '_wonDate',   header: '成約日',           width: 110 },
   { key: 'consent',    header: '情報提供への同意', width: 120 },
   { key: 'source',     header: '流入元',           width: 120 },
-  { key: 'sid',        header: '受付ID',           width: 120 },
+  { key: 'sid',        header: '診断コード',       width: 120 },
   { key: '_lineClick', header: 'LINEボタン',       width: 150 },
 ];
 
@@ -64,9 +65,13 @@ function doPost(e) {
     }
     sanitize(data);
 
+    // 名前・電話番号がない＝診断だけ（個人情報なし）。メールは送らず「診断のみ」で記録
+    var anonymous = !data.name && !data.phone;
+    if (anonymous) data._status = '診断のみ';
+
     var sheet = getOrCreateSheet();
     var rowNum = appendDataRow(sheet, data);
-    notifyNewInquiry(data, rowNum);
+    if (!anonymous) notifyNewInquiry(data, rowNum);
     return jsonResponse({ status: 'ok' });
   } catch (err) {
     return jsonResponse({ status: 'error', message: err.toString() });
@@ -100,9 +105,13 @@ function markLineClick(sid) {
 function isAcceptable(data) {
   if (!data || typeof data !== 'object') return false;
   if (data.website) return false;                     // 見えない欄が埋まっている＝ボット
-  if (!data.name || !data.phone || !data.workplace) return false; // 必須項目なし
-  if (data.consent !== '同意済み') return false;      // 情報提供への同意なし
-  if (!/^[\d\-\+\(\)\s]{7,20}$/.test(String(data.phone))) return false; // 電話番号の形でない
+  if (!data.workplace) return false;                  // 勤務地・通学先がない
+  // 名前・電話番号つき（旧フォームや今後の相談フォーム）のときだけ、同意と電話番号の形を確認
+  if (data.name || data.phone) {
+    if (!data.name || !data.phone) return false;
+    if (data.consent !== '同意済み') return false;
+    if (!/^[\d\-\+\(\)\s]{7,20}$/.test(String(data.phone))) return false;
+  }
   return true;
 }
 
@@ -248,14 +257,13 @@ function testPost() {
     postData: {
       contents: JSON.stringify({
         timestamp: new Date().toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' }),
-        name: 'テスト 花子',
-        phone: '080-9876-5432',
-        lineName: 'はなこ',
-        workplace: '京都・四条',
+        workplace: 'テスト・四条',
         moveIn: '2〜3ヶ月以内',
         budget: '5〜6万円',
         commute: '〜30分',
         conditions: '治安の良さ、学生・若者が多い',
+        source: 'テスト',
+        sid: 'testtest',
       })
     }
   };

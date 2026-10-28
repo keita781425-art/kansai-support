@@ -55,7 +55,7 @@ var Components = (function () {
    */
   function renderStepIndicatorHTML(current) {
     var steps = [
-      { n: 1, label: '基本情報' },
+      { n: 1, label: '勤務地' },
       { n: 2, label: '希望条件' },
       { n: 3, label: '診断結果' },
     ];
@@ -105,7 +105,8 @@ var Components = (function () {
     container.innerHTML =
       '<div class="screen active" id="screen1">' +
         '<div class="form-section">' +
-          '<div class="section-title">あなたのことを教えてください</div>' +
+          '<div class="section-title">通勤・通学先を教えてください</div>' +
+          '<p class="form-note">お名前や電話番号の入力は不要です。結果はこの画面ですぐ見られます。</p>' +
           fieldsHTML +
           // スパム対策：人には見えない入力欄（ボットだけが埋める）
           '<div class="hp-field" aria-hidden="true">' +
@@ -166,21 +167,9 @@ var Components = (function () {
             conditionsHTML +
           '</div>' +
         '</div>' +
-        '<div class="consent-block">' +
-          '<label class="consent-item' + (props.errors && props.errors.consent ? ' error' : '') + '" for="consent">' +
-            '<input type="checkbox" id="consent" aria-required="true">' +
-            '<span>' +
-              '<a href="privacy.html" target="_blank" rel="noopener">プライバシーポリシー</a>に同意し、' +
-              'ご相談のために入力内容を提携する不動産会社へ提供することに同意します' +
-            '</span>' +
-          '</label>' +
-          (props.errors && props.errors.consent
-            ? '<div class="field-error show" role="alert">' + props.errors.consent + '</div>'
-            : '') +
-        '</div>' +
         '<div class="form-actions">' +
           '<button class="btn-primary" id="btn-submit" type="button">診断結果を見る ✦</button>' +
-          '<button class="btn-text" id="btn-to-step1" type="button">← 基本情報に戻る</button>' +
+          '<button class="btn-text" id="btn-to-step1" type="button">← 勤務地に戻る</button>' +
         '</div>' +
         '<div class="bottom-spacer"></div>' +
       '</div>';
@@ -213,7 +202,6 @@ var Components = (function () {
    * @param {{ name:string, workplace:string, budget:string, commute:string, results:DiagnoseResult[], lineCTAUrl:string }} props
    */
   function renderResultPage(container, props) {
-    var displayName = props.name ? props.name.split(/[\s　]/)[0] + 'さん' : '';
  
     var cardsHTML = props.results.map(function (item, i) {
       return renderAreaCardHTML(item, i + 1);
@@ -223,7 +211,7 @@ var Components = (function () {
       '<div class="screen active" id="screen3">' +
         '<div class="result-header">' +
           '<div class="hero-badge" style="background:var(--color-primary-light);color:var(--color-primary)">✦ 診断完了</div>' +
-          '<h2>' + displayName + 'へのおすすめエリア</h2>' +
+          '<h2>あなたへのおすすめエリア</h2>' +
           '<p>' +
             '最寄り駅：' + props.workplace + '　' +
             '予算：' + props.budget + '　' +
@@ -231,7 +219,7 @@ var Components = (function () {
           '</p>' +
         '</div>' +
         '<div id="area-cards-container">' + cardsHTML + '</div>' +
-        renderCTAHTML(props.lineCTAUrl) +
+        renderCTAHTML(props.lineCTAUrl, props.code) +
         '<p class="disclaimer">' +
           '※ 診断結果はご入力の情報をもとにした参考情報です。<br>' +
           '実際の物件状況は担当スタッフにご確認ください。<br>' +
@@ -302,11 +290,16 @@ var Components = (function () {
    * @param {string} lineUrl
    * @returns {string} HTML文字列
    */
-  function renderCTAHTML(lineUrl) {
+  function renderCTAHTML(lineUrl, code) {
+    var codeHTML = code
+      ? '<div class="diag-code">診断コード：<strong>' + code + '</strong>' +
+          '<span>LINEで送ってもらえると、この結果をもとにすぐご相談できます</span></div>'
+      : '';
     return (
       '<div class="cta-section">' +
         '<h3>気になるエリアを詳しく知りたい方へ</h3>' +
-        '<p>担当スタッフが物件探しのご相談を<br>無料でサポートします。</p>' +
+        '<p>担当スタッフが物件探しのご相談を<br>LINEで無料サポートします。</p>' +
+        codeHTML +
         '<a href="' + lineUrl + '" class="btn-line" id="line-cta-btn" target="_blank" rel="noopener noreferrer" aria-label="LINEで担当者に無料相談する">' +
           renderLineIconSVG() +
           '担当者に無料相談する' +

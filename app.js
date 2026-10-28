@@ -54,6 +54,16 @@ var App = (function () {
     return source;
   }
 
+  // 紛らわしい文字（0/o、1/l/i）を除いた英数字でコードを作る
+  function randomCode(len) {
+    var chars = 'abcdefghjkmnpqrstuvwxyz23456789';
+    var out = '';
+    var buf = new Uint32Array(len);
+    try { window.crypto.getRandomValues(buf); } catch (e) { for (var j = 0; j < len; j++) buf[j] = Math.floor(Math.random() * 4294967296); }
+    for (var i = 0; i < len; i++) out += chars.charAt(buf[i] % chars.length);
+    return out;
+  }
+
   // ━━ 効果測定（GA4）━━━━━━━━━━━━━━━━━━━━━━
   // どこまで進んだかだけを送る。名前・電話番号などの入力内容は送らない
   function track(eventName, params) {
@@ -109,12 +119,12 @@ var App = (function () {
  
     } else if (state.currentStep === 3) {
       Components.renderResultPage($main, {
-        name: state.formData.name,
         workplace: state.formData.workplace,
         budget: state.formData.budget,
         commute: state.formData.commute,
         results: state.results,
         lineCTAUrl: LINE_CTA_URL,
+        code: state.sid ? state.sid.toUpperCase() : '',
       });
     }
   }
@@ -174,12 +184,6 @@ var App = (function () {
     });
     var result = Validate.validateFields(selectValues, FormConfig.STEP2_SELECTS);
 
-    // 個人情報の提供への同意（必須）
-    if (!state.formData.consent) {
-      result.valid = false;
-      result.errors.consent = 'ご相談には、プライバシーポリシーと情報提供への同意が必要です';
-    }
-
     if (!result.valid) {
       state.errors = result.errors;
       renderCurrentPage();
@@ -206,8 +210,8 @@ var App = (function () {
       var looksLikeBot = !!state.formData._hp || elapsedSec < 5;
       state.sid = '';
       if (!looksLikeBot) {
-        // 受付ID：あとで「LINEボタンを押したか」をこの行に記録するための番号
-        state.sid = Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+        // 受付ID（＝診断コード）：LINEで送ってもらうと、この診断結果とつなげられる。8文字の英数字
+        state.sid = randomCode(8);
         var payload = GASClient.buildPayload(state.formData);
         payload.elapsedSec = elapsedSec;
         payload.sid = state.sid;
@@ -238,8 +242,6 @@ var App = (function () {
     state.formData.conditions = Array.from(
       document.querySelectorAll('#conditions-grid input[type="checkbox"]:checked')
     ).map(function (cb) { return cb.value; });
-    var consentEl = document.getElementById('consent');
-    if (consentEl) state.formData.consent = consentEl.checked;
   }
  
   // 戻ってきたときにStep2の値を復元
@@ -255,8 +257,6 @@ var App = (function () {
         checkItem.querySelector('input[type="checkbox"]').checked = true;
       }
     });
-    var consentEl = document.getElementById('consent');
-    if (consentEl && state.formData.consent) consentEl.checked = true;
   }
  
   return { init: init };

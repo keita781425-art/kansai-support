@@ -55,15 +55,12 @@ var GASClient = (function () {
   function buildPayload(formData) {
     return {
       timestamp: new Date().toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' }),
-      name: formData.name || '',
-      phone: formData.phone || '',
-      lineName: formData.lineName || '',
+      // 名前・電話番号・LINE表示名はサイトでは聞かない（相談はLINEで受ける）
       workplace: formData.workplace || '',
       moveIn: formData.moveIn || '',
       budget: formData.budget || '',
       commute: formData.commute || '',
       conditions: (formData.conditions || []).join('、'),
-      consent: formData.consent ? '同意済み' : '',
       source: formData.source || '',
     };
   }
