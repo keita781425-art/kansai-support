@@ -54,6 +54,14 @@ var App = (function () {
     return source;
   }
 
+  // ━━ 効果測定（GA4）━━━━━━━━━━━━━━━━━━━━━━
+  // どこまで進んだかだけを送る。名前・電話番号などの入力内容は送らない
+  function track(eventName, params) {
+    try {
+      if (typeof window.gtag === 'function') window.gtag('event', eventName, params || {});
+    } catch (e) {}
+  }
+
   function init() {
     state.formData.source = detectSource();
     $header = document.getElementById('app-header');
@@ -114,6 +122,12 @@ var App = (function () {
   // ━━ Event binding ━━━━━━━━━━━━━━━━━━━━━━━
   function bindStep1Events() {
     document.getElementById('btn-to-step2').addEventListener('click', handleSubmitStep1);
+    // 最初の入力で「診断を始めた」を1回だけ記録
+    $main.addEventListener('input', function () {
+      if (state.trackedStart) return;
+      state.trackedStart = true;
+      track('diagnosis_start', { source: state.formData.source });
+    }, { once: true });
   }
  
   function bindStep2Events() {
@@ -138,6 +152,7 @@ var App = (function () {
     Object.assign(state.formData, values);
     var hp = document.getElementById('hp_website');
     state.formData._hp = hp ? hp.value : '';
+    track('diagnosis_step1_done', { source: state.formData.source });
     navigateTo(2);
   }
  
@@ -197,6 +212,7 @@ var App = (function () {
         payload.elapsedSec = elapsedSec;
         payload.sid = state.sid;
         GASClient.postToGAS(payload);
+        track('generate_lead', { source: state.formData.source });
       }
  
       renderCurrentPage();
@@ -207,9 +223,10 @@ var App = (function () {
   // 導線の計測：診断結果ページで「LINEで相談」ボタンが押されたら、問い合わせ一覧の同じ行に記録する
   function bindLineClickTracking() {
     var btn = document.getElementById('line-cta-btn');
-    if (!btn || !state.sid) return;
+    if (!btn) return;
     btn.addEventListener('click', function () {
-      GASClient.postToGAS({ type: 'line_click', sid: state.sid });
+      track('line_click', { source: state.formData.source, place: 'result' });
+      if (state.sid) GASClient.postToGAS({ type: 'line_click', sid: state.sid });
     }, { once: true });
   }
 
