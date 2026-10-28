@@ -105,7 +105,7 @@ var Components = (function () {
     container.innerHTML =
       '<div class="screen active" id="screen1">' +
         '<div class="form-section">' +
-          '<div class="section-title">通勤・通学先を教えてください</div>' +
+          '<div class="section-title">勤務地・通学先を教えてください</div>' +
           '<p class="form-note">お名前や電話番号の入力は不要です。結果はこの画面ですぐ見られます。</p>' +
           fieldsHTML +
           // スパム対策：人には見えない入力欄（ボットだけが埋める）
@@ -213,7 +213,8 @@ var Components = (function () {
           '<div class="hero-badge" style="background:var(--color-primary-light);color:var(--color-primary)">✦ 診断完了</div>' +
           '<h2>あなたへのおすすめエリア</h2>' +
           '<p>' +
-            '最寄り駅：' + props.workplace + '　' +
+            '勤務地：' + props.workplace + '　' +
+            (props.stations ? '最寄り駅：' + props.stations + '　' : '') +
             '予算：' + props.budget + '　' +
             '通勤：' + props.commute +
           '</p>' +

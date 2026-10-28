@@ -45,6 +45,8 @@ var COLUMNS = [
   { key: 'source',     header: '流入元',           width: 120 },
   { key: 'sid',        header: '診断コード',       width: 120 },
   { key: '_lineClick', header: 'LINEボタン',       width: 150 },
+  { key: 'station1',   header: '最寄り駅①',       width: 120 },
+  { key: 'station2',   header: '最寄り駅②',       width: 120 },
 ];
 
 function doPost(e) {
@@ -258,6 +260,8 @@ function testPost() {
       contents: JSON.stringify({
         timestamp: new Date().toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' }),
         workplace: 'テスト・四条',
+        station1: '四条',
+        station2: '烏丸',
         moveIn: '2〜3ヶ月以内',
         budget: '5〜6万円',
         commute: '〜30分',

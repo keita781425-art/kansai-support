@@ -12,12 +12,29 @@ var FormConfig = (function () {
   var STEP1_FIELDS = [
     {
       id: 'workplace',
-      label: '勤務地・通学先（最寄り駅）',
+      label: '勤務地・通学先',
       type: 'text',
       required: true,
-      placeholder: '例：梅田、本町、京都駅、三宮 など',
+      placeholder: '例：梅田のオフィス、大阪大学 など',
       autocomplete: 'off',
       errorMessage: '勤務地・通学先を入力してください',
+    },
+    {
+      id: 'station1',
+      label: '最寄り駅①',
+      type: 'text',
+      required: true,
+      placeholder: '例：梅田',
+      autocomplete: 'off',
+      errorMessage: '最寄り駅を1つ入力してください',
+    },
+    {
+      id: 'station2',
+      label: '最寄り駅②',
+      type: 'text',
+      required: false,
+      placeholder: '例：東梅田（使える駅がもう1つあれば）',
+      autocomplete: 'off',
     },
   ];
 

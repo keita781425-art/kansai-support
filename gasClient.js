@@ -57,6 +57,8 @@ var GASClient = (function () {
       timestamp: new Date().toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' }),
       // 名前・電話番号・LINE表示名はサイトでは聞かない（相談はLINEで受ける）
       workplace: formData.workplace || '',
+      station1: formData.station1 || '',
+      station2: formData.station2 || '',
       moveIn: formData.moveIn || '',
       budget: formData.budget || '',
       commute: formData.commute || '',

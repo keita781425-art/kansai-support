@@ -120,6 +120,7 @@ var App = (function () {
     } else if (state.currentStep === 3) {
       Components.renderResultPage($main, {
         workplace: state.formData.workplace,
+        stations: [state.formData.station1, state.formData.station2].filter(Boolean).join('・'),
         budget: state.formData.budget,
         commute: state.formData.commute,
         results: state.results,
@@ -198,8 +199,12 @@ var App = (function () {
  
     // 診断実行（非同期に見せる）
     setTimeout(function () {
+      // 路線の判定は最寄り駅①②（＋勤務地の文字）から行う
+      var diagValues = Object.assign({}, state.formData, {
+        workplace: [state.formData.station1, state.formData.station2, state.formData.workplace].filter(Boolean).join(' '),
+      });
       state.results = DiagnoseLogic.diagnose(
-        state.formData,
+        diagValues,
         AreaData.AREAS,
         FormConfig.CONDITION_OPTIONS,
         3
