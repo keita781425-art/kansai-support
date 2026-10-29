@@ -294,7 +294,7 @@ var Components = (function () {
   function renderCTAHTML(lineUrl, code) {
     var codeHTML = code
       ? '<div class="diag-code">診断コード：<strong>' + code + '</strong>' +
-          '<span>LINEで送ってもらえると、この結果をもとにすぐご相談できます</span></div>'
+          '<span>下のボタンを押すと、このコード入りのメッセージができあがります。送信を押すだけで、この結果をもとにご相談できます</span></div>'
       : '';
     return (
       '<div class="cta-section">' +

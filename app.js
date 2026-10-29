@@ -18,6 +18,13 @@ var App = (function () {
   // ━━ Config ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // ▼▼▼ LINE公式アカウントの友達追加URLをここに設定してください ▼▼▼
   var LINE_CTA_URL = 'https://lin.ee/WXRhuH1';
+  // 診断コード入りのメッセージができあがるリンク（友だちでない人は先に友だち追加の画面が出る）
+  var LINE_BASIC_ID = '@349pnysj';
+  function lineUrlWithCode(code) {
+    if (!code) return LINE_CTA_URL;
+    return 'https://line.me/R/oaMessage/' + encodeURIComponent(LINE_BASIC_ID) + '/?' +
+      encodeURIComponent('診断コード：' + code);
+  }
  
   // ━━ State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // Next.js移行時: useReducer({ currentStep, formData, errors, results, loading })
@@ -124,7 +131,7 @@ var App = (function () {
         budget: state.formData.budget,
         commute: state.formData.commute,
         results: state.results,
-        lineCTAUrl: LINE_CTA_URL,
+        lineCTAUrl: lineUrlWithCode(state.sid ? state.sid.toUpperCase() : ''),
         code: state.sid ? state.sid.toUpperCase() : '',
       });
     }
@@ -220,6 +227,8 @@ var App = (function () {
         var payload = GASClient.buildPayload(state.formData);
         payload.elapsedSec = elapsedSec;
         payload.sid = state.sid;
+        // おすすめエリア（上位3つ）もシートに残す。LINEで診断コードを受け取ったときに使う
+        payload.areas = (state.results || []).map(function (r) { return r.area.name; }).join('、');
         GASClient.postToGAS(payload);
         track('generate_lead', { source: state.formData.source });
       }

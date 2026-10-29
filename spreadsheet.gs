@@ -9,12 +9,15 @@
  *  3. 対応ステータスに「未対応」を自動セット（プルダウン付き）
  *  4. 名前・電話番号つきの問い合わせが来たら、自分宛てにメール通知
  *  5. 10/28〜 サイトでは個人情報を聞かない。診断だけの行は「診断のみ」で記録（メール通知なし）
+ *  6. 10/29〜 LINEボット（kansai-line-bot）が診断コードで診断内容を読みに来る口（doGet）。
+ *     返すのは個人情報なしの診断内容だけ（勤務地・駅・予算など）。60日より前の行は返さない
  *
  * 【更新手順】（URLを変えずに反映する方法）
  *  1. スプレッドシート「新生活サポート_問い合わせ」> 拡張機能 > Apps Script
  *  2. 既存コードを全部消して、このファイルの中身を貼り付けて保存
  *  3. 関数「fixExistingRows」を選んで ▶実行（見出しが「診断コード」になる）
  *     続けて「testPost」を ▶実行 → シートに「診断のみ」のテスト行が入ればOK（メールは来ない。テスト行は削除してOK）
+ *     ※10/29版：続けて「testLookup」を ▶実行 → ログに found: true が出ればOK
  *  4. デプロイ > デプロイを管理 > ✏️編集 > バージョン「新バージョン」> デプロイ
  *     ※「新しいデプロイ」ではなく「デプロイを管理」から。URLが変わらずサイト側の修正不要。
  */
@@ -47,7 +50,42 @@ var COLUMNS = [
   { key: '_lineClick', header: 'LINEボタン',       width: 150 },
   { key: 'station1',   header: '最寄り駅①',       width: 120 },
   { key: 'station2',   header: '最寄り駅②',       width: 120 },
+  { key: 'areas',      header: 'おすすめエリア',   width: 220 },
 ];
+
+// ボットに返す項目（個人情報は入れない）
+var LOOKUP_KEYS = ['workplace', 'station1', 'station2', 'moveIn', 'budget', 'commute', 'conditions', 'source', 'areas'];
+var LOOKUP_MAX_DAYS = 60;
+
+/**
+ * 診断コードで診断内容を返す（LINEボット用）
+ *   GET ?action=lookup&sid=abcd2345 → { found: true, data: {...} } / { found: false }
+ */
+function doGet(e) {
+  var p = (e && e.parameter) || {};
+  if (p.action !== 'lookup') return jsonResponse({ status: 'ok' });
+  var sid = String(p.sid || '').toLowerCase();
+  if (!/^[a-hjkmnp-z2-9]{8}$/.test(sid)) return jsonResponse({ found: false });
+
+  var sheet = getOrCreateSheet();
+  var last = sheet.getLastRow();
+  if (last < 2) return jsonResponse({ found: false });
+  var start = Math.max(2, last - 1000); // 直近1000行だけ探す
+  var rows = sheet.getRange(start, 1, last - start + 1, COLUMNS.length).getValues();
+  var sidIdx = columnIndex('sid') - 1;
+  var tsIdx = columnIndex('timestamp') - 1;
+  for (var i = rows.length - 1; i >= 0; i--) {
+    if (String(rows[i][sidIdx]).toLowerCase() !== sid) continue;
+    var ts = new Date(rows[i][tsIdx]);
+    if (!isNaN(ts) && (Date.now() - ts.getTime()) > LOOKUP_MAX_DAYS * 86400000) {
+      return jsonResponse({ found: false, expired: true });
+    }
+    var data = {};
+    LOOKUP_KEYS.forEach(function (k) { data[k] = String(rows[i][columnIndex(k) - 1] || ''); });
+    return jsonResponse({ found: true, data: data });
+  }
+  return jsonResponse({ found: false });
+}
 
 function doPost(e) {
   var lock = LockService.getScriptLock();
@@ -268,8 +306,17 @@ function testPost() {
         conditions: '治安の良さ、学生・若者が多い',
         source: 'テスト',
         sid: 'testtest',
+        areas: '烏丸・四条、京都駅周辺、出町柳',
       })
     }
   };
   Logger.log(doPost(testData).getContent());
+}
+
+// 診断コードの読み取りテスト（testPostの後に実行。最新の行のコードで読めるか試す）
+function testLookup() {
+  var sheet = getOrCreateSheet();
+  var sid = String(sheet.getRange(sheet.getLastRow(), columnIndex('sid')).getValue());
+  Logger.log('コード: ' + sid);
+  Logger.log(doGet({ parameter: { action: 'lookup', sid: sid } }).getContent());
 }
