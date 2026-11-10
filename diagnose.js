@@ -52,7 +52,6 @@ var DiagnoseLogic = (function () {
       '〜30分': 6,
       '〜45分': 4,
       '〜1時間': 2,
-      '1時間以上可': 0,
     };
     return map[commute] != null ? map[commute] : 4;
   }
@@ -69,7 +68,6 @@ var DiagnoseLogic = (function () {
       '〜30分': 0.65,
       '〜45分': 0.8,
       '〜1時間': 0.9,
-      '1時間以上可': 1.0,
     };
     return map[commute] != null ? map[commute] : 0.85;
   }

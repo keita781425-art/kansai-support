@@ -77,7 +77,6 @@ var FormConfig = (function () {
         { value: '〜30分',    label: '〜30分' },
         { value: '〜45分',    label: '〜45分' },
         { value: '〜1時間',   label: '〜1時間' },
-        { value: '1時間以上可', label: '1時間以上でも可' },
       ],
     },
   ];
