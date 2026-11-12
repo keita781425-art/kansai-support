@@ -59,8 +59,7 @@ var FormConfig = (function () {
       required: true,
       errorMessage: '家賃予算を選択してください',
       options: [
-        { value: '〜4万円',  label: '〜4万円' },
-        { value: '4〜5万円', label: '4〜5万円' },
+        { value: '〜5万円',  label: '〜5万円' },
         { value: '5〜6万円', label: '5〜6万円' },
         { value: '6〜7万円', label: '6〜7万円' },
         { value: '7〜9万円', label: '7〜9万円' },

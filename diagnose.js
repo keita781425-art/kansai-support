@@ -19,8 +19,7 @@ var DiagnoseLogic = (function () {
    */
   function budgetToNumber(budget) {
     var map = {
-      '〜4万円': 4,
-      '4〜5万円': 4.5,
+      '〜5万円': 4.5,
       '5〜6万円': 5.5,
       '6〜7万円': 6.5,
       '7〜9万円': 8,
