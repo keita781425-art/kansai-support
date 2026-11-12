@@ -130,6 +130,8 @@ var App = (function () {
         stations: [state.formData.station1, state.formData.station2].filter(Boolean).join('・'),
         budget: state.formData.budget,
         commute: state.formData.commute,
+        age: state.formData.age,
+        hub: state.hub,
         results: state.results,
         lineCTAUrl: lineUrlWithCode(state.sid ? state.sid.toUpperCase() : ''),
         code: state.sid ? state.sid.toUpperCase() : '',
@@ -206,16 +208,14 @@ var App = (function () {
  
     // 診断実行（非同期に見せる）
     setTimeout(function () {
-      // 路線の判定は最寄り駅①②（＋勤務地の文字）から行う
-      var diagValues = Object.assign({}, state.formData, {
-        workplace: [state.formData.station1, state.formData.station2, state.formData.workplace].filter(Boolean).join(' '),
-      });
-      state.results = DiagnoseLogic.diagnose(
-        diagValues,
+      var diag = DiagnoseLogic.diagnose(
+        state.formData,
         AreaData.AREAS,
         FormConfig.CONDITION_OPTIONS,
         3
       );
+      state.results = diag.items;
+      state.hub = diag.hub;
       // スプレッドシートへ送信
       // スパム対策：見えない欄が埋まっている／入力が速すぎる（5秒未満）場合は送らない
       var elapsedSec = Math.round((Date.now() - state.startedAt) / 1000);

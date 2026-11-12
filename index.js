@@ -203,8 +203,9 @@ var Components = (function () {
    */
   function renderResultPage(container, props) {
  
+    var hubName = props.hub && typeof AreaData !== 'undefined' ? AreaData.HUBS[props.hub.hub] : '';
     var cardsHTML = props.results.map(function (item, i) {
-      return renderAreaCardHTML(item, i + 1);
+      return renderAreaCardHTML(item, i + 1, hubName, props.age);
     }).join('');
  
     container.innerHTML =
@@ -216,8 +217,14 @@ var Components = (function () {
             '勤務地：' + props.workplace + '　' +
             (props.stations ? '最寄り駅：' + props.stations + '　' : '') +
             '予算：' + props.budget + '　' +
-            '通勤：' + props.commute +
+            '通勤：' + props.commute + '　' +
+            '築年数：' + (props.age || 'こだわりなし') +
           '</p>' +
+          (props.results.some(function (r) { return r.overBudget || r.overTime; })
+            ? '<p class="result-note">※ ご希望の予算・通勤時間にぴったり合うエリアが少なかったため、少しだけ外れるエリアも入れています。</p>'
+            : '') +
+          (props.hub ? '' :
+            '<p class="result-note">※ 最寄り駅から通勤時間を出せなかったため、予算と重視する条件で選んでいます。LINEでご相談いただければ、通勤時間も見てお探しします。</p>') +
         '</div>' +
         '<div id="area-cards-container">' + cardsHTML + '</div>' +
         renderCTAHTML(props.lineCTAUrl, props.code) +
@@ -248,16 +255,25 @@ var Components = (function () {
    * @param {number} rank  1〜3
    * @returns {string} HTML文字列
    */
-  function renderAreaCardHTML(item, rank) {
+  function renderAreaCardHTML(item, rank, hubName, age) {
     var a = item.area;
     var tagsHTML = a.tags.map(function (t, j) {
       return '<span class="' + TAG_CLASSES[j] + '">' + t + '</span>';
     }).join('');
- 
-    var commuteBadgeHTML = item.lineMatched
-      ? '<div class="commute-badge">🚃 入力された最寄り駅から乗り換えなしでアクセス可能</div>'
-      : '';
- 
+
+    // 通勤時間と家賃の目安
+    var ageLabel = (!age || age === 'こだわりなし') ? '' : '・築' + age.replace('〜', '') + (age === '20年〜' ? '' : '以内');
+    if (age === '20年〜') ageLabel = '・築20年以上';
+    var factsHTML =
+      '<div class="area-facts">' +
+        (item.minutes != null
+          ? '<div>🚃 ' + hubName + 'まで電車で約' + item.minutes + '分' + (item.overTime ? '<span class="fact-warn">（希望より少し長め）</span>' : '') + '</div>'
+          : '') +
+        '<div>💰 1Kの家賃の目安：約' + item.rent.toFixed(1) + '万円' + ageLabel +
+          (item.overBudget ? '<span class="fact-warn">（予算より少し高め）</span>' : '') + '</div>' +
+      '</div>';
+    var commuteBadgeHTML = factsHTML;
+
     return (
       '<div class="area-card" aria-label="' + rank + '位：' + a.name + '">' +
         '<div class="area-card-header">' +

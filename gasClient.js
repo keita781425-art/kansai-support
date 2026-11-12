@@ -62,7 +62,8 @@ var GASClient = (function () {
       moveIn: formData.moveIn || '',
       budget: formData.budget || '',
       commute: formData.commute || '',
-      conditions: (formData.conditions || []).join('、'),
+      // 築年数は「重視する条件」の列に一緒に入れる（シートの列を増やさないため。ボットが読み取る）
+      conditions: (formData.conditions || []).concat(formData.age ? ['築年数：' + formData.age] : []).join('、'),
       source: formData.source || '',
     };
   }

@@ -78,6 +78,19 @@ var FormConfig = (function () {
         { value: '〜1時間',   label: '〜1時間' },
       ],
     },
+    {
+      id: 'age',
+      label: '部屋の築年数',
+      required: true,
+      errorMessage: '築年数を選択してください',
+      options: [
+        { value: '〜5年',       label: '〜5年' },
+        { value: '〜10年',      label: '〜10年' },
+        { value: '〜20年',      label: '〜20年' },
+        { value: '20年〜',      label: '20年〜' },
+        { value: 'こだわりなし', label: 'こだわりなし' },
+      ],
+    },
   ];
 
   /** Step 2: 重視条件チェックボックス */
@@ -89,7 +102,6 @@ var FormConfig = (function () {
     { value: 'スーパー・コンビニ近く', label: '生活利便性',    scoreKey: 'convenient' },
     { value: '自然・公園近く',     label: '自然・落ち着いた環境', scoreKey: 'nature' },
     { value: '学生・若者が多い',   label: '学生・若者が多い',  scoreKey: 'young' },
-    { value: '築浅・新築',         label: '築浅・きれいな部屋', scoreKey: 'new' },
   ];
 
   return {
