@@ -39,7 +39,7 @@ var StationData = (function () {
     ['天王寺', 'tennoji', 0], ['阿倍野', 'tennoji', 0], ['あべの', 'tennoji', 0], ['大阪阿部野橋', 'tennoji', 0],
     ['新今宮', 'tennoji', 3], ['動物園前', 'tennoji', 3], ['寺田町', 'tennoji', 3], ['昭和町', 'tennoji', 4],
     ['上本町', 'tennoji', 6], ['大阪上本町', 'tennoji', 6], ['谷町九丁目', 'tennoji', 6], ['鶴橋', 'tennoji', 6],
-    ['桃谷', 'tennoji', 5], ['西田辺', 'tennoji', 6], ['あびこ', 'tennoji', 10], ['我孫子', 'tennoji', 10],
+    ['桃谷', 'tennoji', 5], ['西田辺', 'tennoji', 6], ['あびこ', 'tennoji', 10], ['我孫子', 'tennoji', 10], ['長居', 'tennoji', 8],
     ['堺', 'namba', 15], ['なかもず', 'namba', 22], ['中百舌鳥', 'namba', 22],
     // ── 京橋 ──
     ['京橋', 'kyobashi', 0], ['大阪城公園', 'kyobashi', 2], ['大阪ビジネスパーク', 'kyobashi', 3],
@@ -48,7 +48,7 @@ var StationData = (function () {
     ['枚方', 'kyobashi', 22], ['門真', 'kyobashi', 12], ['守口', 'kyobashi', 10], ['四条畷', 'kyobashi', 20],
     // ── 新大阪 ──
     ['新大阪', 'shinosaka', 0], ['西中島南方', 'shinosaka', 2], ['南方', 'shinosaka', 2], ['東三国', 'shinosaka', 3],
-    ['三国', 'umeda', 8], ['江坂', 'shinosaka', 6], ['吹田', 'shinosaka', 6], ['千里中央', 'shinosaka', 14],
+    ['三国', 'umeda', 8], ['江坂', 'shinosaka', 6], ['吹田', 'shinosaka', 6], ['千里中央', 'shinosaka', 14], ['箕面', 'shinosaka', 20],
     ['桃山台', 'shinosaka', 11], ['緑地公園', 'shinosaka', 9], ['淡路', 'shinosaka', 10], ['茨木', 'shinosaka', 10],
     ['高槻', 'shinosaka', 12], ['阪大', 'shinosaka', 25], ['大阪大学', 'shinosaka', 25], ['関西大学', 'shinosaka', 20],
     ['関大', 'shinosaka', 20], ['豊中', 'umeda', 15], ['伊丹', 'umeda', 20],
@@ -89,9 +89,14 @@ var StationData = (function () {
     if (!s) return null;
     var best = null;
     TABLE.forEach(function (row) {
-      if (s.indexOf(row[0]) === -1) return;
-      if (!best || row[0].length > best.word.length) best = { word: row[0], hub: row[1], extra: row[2] };
+      var at = s.lastIndexOf(row[0]);
+      if (at === -1) return;
+      // 長い言葉を優先。同じ長さなら後ろに書かれた方（「大阪市本町」「京都・四条」の本町・四条）を使う
+      if (!best || row[0].length > best.word.length || (row[0].length === best.word.length && at > best.at)) {
+        best = { word: row[0], hub: row[1], extra: row[2], at: at };
+      }
     });
+    if (best) delete best.at;
     return best;
   }
 
