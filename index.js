@@ -17,7 +17,23 @@
  */
  
 var Components = (function () {
- 
+
+  /**
+   * HTMLに埋め込む前に、記号を文字として表示される形に置き換える。
+   * お客さんが入力した文字（勤務地・最寄り駅など）は必ずこれを通す。
+   * @param {*} s
+   * @returns {string}
+   */
+  function esc(s) {
+    if (s === null || s === undefined) return '';
+    return String(s)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
   /* ━━ Header ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
  
   function renderHeader(container) {
@@ -214,11 +230,11 @@ var Components = (function () {
           '<div class="hero-badge" style="background:var(--color-primary-light);color:var(--color-primary)">✦ 診断完了</div>' +
           '<h2>あなたへのおすすめエリア</h2>' +
           '<p>' +
-            '勤務地：' + props.workplace + '　' +
-            (props.stations ? '最寄り駅：' + props.stations + '　' : '') +
-            '予算：' + props.budget + '　' +
-            '通勤：' + props.commute + '　' +
-            '築年数：' + (props.age || 'こだわりなし') +
+            '勤務地：' + esc(props.workplace) + '　' +
+            (props.stations ? '最寄り駅：' + esc(props.stations) + '　' : '') +
+            '予算：' + esc(props.budget) + '　' +
+            '通勤：' + esc(props.commute) + '　' +
+            '築年数：' + esc(props.age || 'こだわりなし') +
           '</p>' +
           (props.results.some(function (r) { return r.overBudget || r.overTime; })
             ? '<p class="result-note">※ ご希望の予算・通勤時間にぴったり合うエリアが少なかったため、少しだけ外れるエリアも入れています。</p>'
@@ -309,7 +325,7 @@ var Components = (function () {
    */
   function renderCTAHTML(lineUrl, code) {
     var codeHTML = code
-      ? '<div class="diag-code">診断コード：<strong>' + code + '</strong>' +
+      ? '<div class="diag-code">診断コード：<strong>' + esc(code) + '</strong>' +
           '<span>下のボタンを押すと、このコード入りのメッセージができあがります。送信を押すだけで、この結果をもとにご相談できます</span></div>'
       : '';
     return (
@@ -317,7 +333,7 @@ var Components = (function () {
         '<h3>気になるエリアを詳しく知りたい方へ</h3>' +
         '<p>担当スタッフが物件探しのご相談を<br>LINEで無料サポートします。</p>' +
         codeHTML +
-        '<a href="' + lineUrl + '" class="btn-line" id="line-cta-btn" target="_blank" rel="noopener noreferrer" aria-label="LINEで担当者に無料相談する">' +
+        '<a href="' + esc(lineUrl) + '" class="btn-line" id="line-cta-btn" target="_blank" rel="noopener noreferrer" aria-label="LINEで担当者に無料相談する">' +
           renderLineIconSVG() +
           '担当者に無料相談する' +
         '</a>' +
